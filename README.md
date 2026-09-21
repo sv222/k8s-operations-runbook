@@ -193,7 +193,7 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 
 **Answer:** A Namespace is a way to divide cluster resources between multiple users or teams. It provides logical isolation, allowing you to have resources with the same name in different namespaces.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/overview/namespaces/](https://kubernetes.io/docs/concepts/overview/namespaces/)
+**Documentation:** [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
 
 **Explanation:** Imagine you have a development team and a production team sharing the same Kubernetes cluster. Namespaces allow them to have separate environments with their own deployments, services, and other resources, preventing naming conflicts and providing better resource management.
 
@@ -392,7 +392,7 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 - **Examining Endpoints:**  Ensure that Endpoints objects have the correct IP addresses and ports of the backing pods.
 - **Using Network Tools:** Employ tools like `ping`, `curl`, `traceroute`, and `nslookup` within pods to diagnose connectivity.
 
-**Documentation:** [https://kubernetes.io/docs/tasks/debug-application-cluster/debug-application-network/](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-application-network/)
+**Documentation:** [https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/](https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/)
 
 **Explanation:** Network troubleshooting in Kubernetes requires a methodical approach, from verifying network policies to inspecting service configurations and testing connectivity using common network tools.
 
@@ -400,7 +400,7 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 
 **Answer:** A Namespace provides a logical boundary and a mechanism for resource isolation within a Kubernetes cluster. It allows you to divide cluster resources, such as Pods, Services, and Deployments, into separate, isolated environments.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/overview/namespaces/](https://kubernetes.io/docs/concepts/overview/namespaces/)
+**Documentation:** [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
 
 **Explanation:** Imagine you have multiple teams sharing the same cluster. Namespaces allow them to have their own isolated areas where they can deploy applications with the same names without conflicts. It enhances security and organization.
 
@@ -563,8 +563,8 @@ An Ingress Controller is a specialized load balancer that works at the HTTP/HTTP
 
 **Documentation:**
 
-- `kubectl apply`: [https://kubernetes.io/docs/reference/kubectl/kubectl-apply/](https://kubernetes.io/docs/reference/kubectl/kubectl-apply/)
-- `kubectl replace`: [https://kubernetes.io/docs/reference/kubectl/kubectl-replace/](https://kubernetes.io/docs/reference/kubectl/kubectl-replace/)
+- `kubectl apply`: [https://kubernetes.io/docs/reference/kubectl/generated/kubectl_apply/](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_apply/)
+- `kubectl replace`: [https://kubernetes.io/docs/reference/kubectl/generated/kubectl_replace/](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_replace/)
 
 **Explanation:** `kubectl apply` is more user-friendly for updates as it merges changes, while `kubectl replace` offers more control but can lead to unintended consequences if not used carefully.
 
@@ -809,7 +809,7 @@ spec:
 
 **Documentation:**
 
-- Upgrading Kubernetes: [https://kubernetes.io/docs/tasks/administer-cluster/cluster-management/](https://kubernetes.io/docs/tasks/administer-cluster/cluster-management/)
+- Upgrading Kubernetes: [https://kubernetes.io/docs/tasks/administer-cluster/](https://kubernetes.io/docs/tasks/administer-cluster/)
 
 **Explanation:** Cluster upgrades can be complex. Careful planning, backups, and following official documentation are essential for a successful upgrade.
 
@@ -851,7 +851,7 @@ spec:
 2. **Define NetworkPolicy Resources:**  Create YAML files specifying your desired network rules.
 3. **Apply NetworkPolicies:** Apply the policies to your cluster using `kubectl apply`.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/security/network-policies/](https://kubernetes.io/docs/concepts/security/network-policies/)
+**Documentation:** [https://kubernetes.io/docs/concepts/services-networking/network-policies/](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 
 **Explanation:** Network policies provide a powerful way to segment your cluster network and enforce traffic control rules, enhancing security.
 
@@ -1089,7 +1089,7 @@ While Kubernetes doesn't have built-in blue/green deployments, you can achieve i
     - Monitor the "green" deployment for errors and performance.
     - If issues arise, quickly roll back traffic to the "blue" Deployment.
 
-**Documentation:** [https://kubernetes.io/blog/2017/01/04/blue-green-deployment-on-kubernetes/](https://kubernetes.io/blog/2017/01/04/blue-green-deployment-on-kubernetes/)
+**Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 
 **Explanation:**  Blue/green deployments minimize downtime during updates by running two identical environments, making it ideal for applications requiring high availability.
 
@@ -1432,7 +1432,7 @@ spec:
 
 You could have separate Namespaces for "development," "testing," and "production" to isolate their environments and resources.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/overview/namespaces/](https://kubernetes.io/docs/concepts/overview/namespaces/)
+**Documentation:** [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
 
 **Explanation:**  Namespaces are a fundamental concept in Kubernetes for organizing and managing resources, especially in multi-tenant environments.
 
@@ -1742,7 +1742,7 @@ spec:
 - **Ingress/Egress Control:** Specifies allowed incoming (ingress) and outgoing (egress) traffic for Pods.
 - **Default Deny:**  You can configure default deny policies, requiring explicit rules to allow traffic, improving security posture.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/security/network-policies/](https://kubernetes.io/docs/concepts/security/network-policies/)
+**Documentation:** [https://kubernetes.io/docs/concepts/services-networking/network-policies/](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 
 **Explanation:**  NetworkPolicies are crucial for securing your applications and limiting the impact of potential attacks in Kubernetes.
 
@@ -1874,7 +1874,7 @@ spec:
 
 **Documentation:**
 
-- Namespaces: [https://kubernetes.io/docs/concepts/overview/namespaces/](https://kubernetes.io/docs/concepts/overview/namespaces/)
+- Namespaces: [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
 - RBAC: [https://kubernetes.io/docs/reference/access-authn-authz/rbac/](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
 
 ### 86. How do you configure a Kubernetes deployment to perform automated rollouts during container image updates?
@@ -2397,7 +2397,7 @@ spec:
 - **Authorization:** Implement RBAC to control access to API resources.
 - **Network Security:**  Secure the network connection between the client and the API server, ideally using a VPN or dedicated network link.
 
-**Documentation:** [https://kubernetes.io/docs/reference/api/](https://kubernetes.io/docs/reference/api/)
+**Documentation:** [https://kubernetes.io/docs/reference/kubernetes-api/](https://kubernetes.io/docs/reference/kubernetes-api/)
 
 ### 103.  Describe the process of creating and using a Kubernetes StorageClass.
 
@@ -2532,7 +2532,7 @@ spec:
 - When a Service is created, Kubernetes creates EndpointSlice objects that map to subsets of the Service's endpoints.
 - Kube-proxy and other networking components use EndpointSlices to route traffic to Pods.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/services-networking/endpointslices/](https://kubernetes.io/docs/concepts/services-networking/endpointslices/)
+**Documentation:** [https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/](https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/)
 
 ### 108. How do you configure a Pod to use a specific network interface on the node?
 
@@ -2748,7 +2748,7 @@ spec:
 - **`hostname`:** Sets the hostname of the Pod. This hostname is used within the Pod's network namespace.
 - **`subdomain`:** (Optional) Specifies a subdomain to be added to the Pod's hostname. This allows for more organized DNS resolution within the cluster.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/containers/pods/#pod-and-container-fields](https://kubernetes.io/docs/concepts/containers/pods/#pod-and-container-fields)
+**Documentation:** [https://kubernetes.io/docs/concepts/workloads/pods/](https://kubernetes.io/docs/concepts/workloads/pods/)
 
 ### 116. What are some strategies for implementing zero-downtime deployments in Kubernetes?
 
@@ -3197,7 +3197,7 @@ spec:
 - **Traffic Enforcement:**  NetworkPolicy rules are enforced by network plugins (like Calico, Cilium, or Weave Net).
 - **Default Deny:** You can implement a "default deny" policy, where no traffic is allowed unless explicitly permitted by a NetworkPolicy.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/security/network-policies/](https://kubernetes.io/docs/concepts/security/network-policies/)
+**Documentation:** [https://kubernetes.io/docs/concepts/services-networking/network-policies/](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 
 ### 130.  How do you configure a Pod to use a specific DNS policy in Kubernetes?
 
@@ -3555,8 +3555,8 @@ spec:
 
 **Documentation:**
 
-- `kubectl create`: [https://kubernetes.io/docs/reference/kubectl/generated/kubectl_commands/](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_commands/)
-- `kubectl apply`: [https://kubernetes.io/docs/reference/kubectl/generated/kubectl_commands/](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_commands/)
+- `kubectl create`: [https://kubernetes.io/docs/reference/kubectl/generated/](https://kubernetes.io/docs/reference/kubectl/generated/)
+- `kubectl apply`: [https://kubernetes.io/docs/reference/kubectl/generated/](https://kubernetes.io/docs/reference/kubectl/generated/)
 
 ### 143.  How do you implement a "leader election" pattern for Pods in Kubernetes?
 
@@ -3575,7 +3575,7 @@ spec:
 - **Kubernetes Leases:** Kubernetes provides a built-in lease object that can be used for leader election.
 - **Libraries and Frameworks:** There are libraries and frameworks available (e.g., `client-go` leader election library) that simplify leader election implementation.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/coordination/leader-election/](https://kubernetes.io/docs/concepts/coordination/leader-election/)
+**Documentation:** [https://kubernetes.io/docs/concepts/architecture/leases/#leader-election](https://kubernetes.io/docs/concepts/architecture/leases/#leader-election)
 
 ### 144. Explain the purpose and functionality of the Kubernetes API aggregation layer.
 
@@ -3642,7 +3642,7 @@ spec:
 - **Reduced Blast Radius:**  Contain security breaches within a namespace, preventing them from affecting other parts of the cluster.
 - **Improved Auditing and Monitoring:** Separate logs and monitoring data by namespace, making it easier to track security-related events.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/overview/namespaces/](https://kubernetes.io/docs/concepts/overview/namespaces/) (and related documentation on RBAC and NetworkPolicies)
+**Documentation:** [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) (and related documentation on RBAC and NetworkPolicies)
 
 ### 147. How do you troubleshoot a Kubernetes Pod that is stuck in an "ImagePullBackOff" state?
 
