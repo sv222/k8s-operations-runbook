@@ -389,7 +389,7 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 
 - **Checking Network Policies:**  See if network policies are restricting traffic.
 - **Inspecting Services:** Verify that services are correctly configured and selecting the correct pods.
-- **Examining Endpoints:**  Ensure that Endpoints objects have the correct IP addresses and ports of the backing pods.
+- **Examining Endpoints:**  Ensure that EndpointSlices (the Endpoints API is deprecated since 1.33) have the correct IP addresses and ports of the backing pods.
 - **Using Network Tools:** Employ tools like `ping`, `curl`, `traceroute`, and `nslookup` within pods to diagnose connectivity.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/](https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/)
