@@ -1722,7 +1722,7 @@ spec:
 6. **Secure with TLS:**  Obtain and configure SSL/TLS certificates to secure communication with the registry.
 7. **Authentication (Optional):**  Implement authentication mechanisms for pushing and pulling images.
 
-**Documentation:** [https://docs.docker.com/registry/deploying/](https://docs.docker.com/registry/deploying/)
+**Documentation:** [https://distribution.github.io/distribution/about/deploying/](https://distribution.github.io/distribution/about/deploying/)
 
 **Explanation:**  Running your own registry within Kubernetes gives you more control over image storage and access.
 
