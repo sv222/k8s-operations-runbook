@@ -11,7 +11,7 @@ jobs:
   yaml:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install kubeconform
         run: |
           curl -sSLo /tmp/kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz
@@ -21,7 +21,7 @@ jobs:
   links:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: lycheeverse/lychee-action@v2
         with:
           args: --no-progress --max-retries 3 --accept 200,206,429 README.md CONTRIBUTING.md
