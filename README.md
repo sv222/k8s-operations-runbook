@@ -461,7 +461,7 @@ To use the Secret, mount it as a volume or environment variable in your Pod defi
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#create-a-secret](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#create-a-secret)
 
-**Explanation:** Secrets are base64-encoded for basic security. When creating them, remember to encode sensitive values. You can directly pass values with `kubectl` or use YAML for more complex cases.
+**Explanation:** Secret values are base64-encoded, not encrypted. With `kubectl create secret`, kubectl encodes the values for you. In YAML `data`, you must supply base64 yourself, or use `stringData` for plain text.
 
 ### 28. What are some common reasons for Pod failures in Kubernetes, and how do you troubleshoot them?
 
@@ -472,11 +472,12 @@ To use the Secret, mount it as a volume or environment variable in your Pod defi
 - **ImagePullBackOff:**  The container image cannot be pulled from the registry.
 - **CrashLoopBackOff:** The container repeatedly crashes after starting.
 - **ErrImagePull:** Error pulling the container image.
+- **Pending:** The Pod cannot be scheduled (insufficient CPU or memory, a node selector or taint mismatch, or an unbound PVC).
 - **OOMKilled:** The container exceeded its memory limit.
 
 **Troubleshooting:**
 
-- **Check Logs (`kubectl logs`)**: Inspect container logs for error messages.
+- **Check Logs (`kubectl logs`)**: Inspect container logs for error messages. For a crashing container, add `--previous` to see the output of the last run.
 - **Describe the Pod (`kubectl describe pod`)**: Get details about the Pod's status and events.
 - **Check Events (`kubectl get events`)**:  Review cluster events for relevant information.
 - **Exec into the Pod (`kubectl exec`)**: If possible, execute commands inside the container for debugging.
@@ -498,13 +499,13 @@ To use the Secret, mount it as a volume or environment variable in your Pod defi
 
 **Documentation:** [https://kubernetes.io/docs/concepts/storage/](https://kubernetes.io/docs/concepts/storage/)
 
-**Explanation:** Kubernetes provides a flexible storage framework.  While basic Volumes offer simplicity, PVs and PVCs provide a robust way to manage and allocate storage resources. StorageClasses add another layer of abstraction for different storage tiers.
+**Explanation:** While basic Volumes offer simplicity, PVs and PVCs provide a robust way to manage and allocate storage resources. StorageClasses add another layer of abstraction for different storage tiers.
 
 ### 30. How do you configure a Kubernetes Service to use a specific IP address?
 
 **Answer:**
 
-You can assign a specific IP address to a Kubernetes Service using the `.spec.clusterIP` field in the Service definition. This is only applicable to Services with `type: ClusterIP`.
+You can assign a specific IP address to a Kubernetes Service using the `.spec.clusterIP` field in the Service definition. This works for `ClusterIP` Services, and also for `NodePort` and `LoadBalancer` Services, which get a cluster IP as well.
 
 **Example:**
 
@@ -546,12 +547,12 @@ An Ingress Controller is a specialized load balancer that works at the HTTP/HTTP
 **How it Works:**
 
 1. **Ingress Resource:** You create an Ingress resource that defines routing rules, such as hostnames, paths, and backend services.
-2. **Ingress Controller:** The Ingress Controller (e.g., Nginx Ingress, Traefik) monitors Ingress resources and configures itself to handle traffic according to the rules.
+2. **Ingress Controller:** The Ingress Controller (e.g., Traefik or another maintained controller; the community ingress-nginx project was retired in March 2026) monitors Ingress resources and configures itself to handle traffic according to the rules.
 3. **Traffic Forwarding:** When a request arrives at the Ingress Controller, it inspects the request headers and forwards it to the appropriate service based on the matching rule.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/ingress/](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 
-**Explanation:** An Ingress Controller simplifies external access to your services by providing a single entry point for all incoming traffic and handling routing, TLS termination, and virtual hosting.
+**Explanation:** An Ingress Controller simplifies external access to your services by providing a single entry point for all incoming traffic and handling routing, TLS termination, and virtual hosting. For new deployments, the Gateway API is the successor to Ingress.
 
 ### 32. Explain the difference between `kubectl apply` and `kubectl replace` commands.
 
@@ -582,7 +583,7 @@ An Ingress Controller is a specialized load balancer that works at the HTTP/HTTP
 |---|---|---|
 | Purpose | Represents a piece of storage provisioned by an administrator. | A request for storage by a user or application. |
 | Scope | Cluster-wide | Namespace-bound |
-| Lifecycle | Independent of Pods | Bound to Pods |
+| Lifecycle | Independent of Pods | Exists until deleted; Pods mount it through the PVC |
 | Management | Managed by administrators | Requested and used by developers |
 
 **Explanation:**
@@ -630,8 +631,8 @@ spec:
   - **`cpu`:** CPU request (e.g., "500m" for half a CPU, "1" for one CPU).
   - **`memory`:**  Memory request (e.g., "128Mi", "1Gi").
 - **`limits`:**
-  - **`cpu`:** CPU limit (cannot exceed request).
-  - **`memory`:** Memory limit (cannot exceed request).
+  - **`cpu`:** CPU limit (must be greater than or equal to the request).
+  - **`memory`:** Memory limit (must be greater than or equal to the request). If you set a limit without a request, the request defaults to the limit.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
 
@@ -653,9 +654,9 @@ A Deployment strategy in Kubernetes defines how updates to your application are 
   - Deletes all existing Pods before creating new ones.
   - Introduces downtime during the update process.
 
-- **Blue/Green (requires additional tools):**
+- **Blue/Green (not a built-in strategy):**
   - Creates a new "green" deployment alongside the existing "blue" deployment.
-  - Traffic is switched over to the "green" deployment once it's ready.
+  - Traffic is switched over to the "green" deployment once it's ready, usually by changing the Service selector.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy)
 
@@ -687,7 +688,7 @@ A Deployment strategy in Kubernetes defines how updates to your application are 
 
 **Monitoring Options:**
 
-- **Kubernetes Dashboard:** Provides a basic graphical overview of resource usage.
+- **Kubernetes Dashboard:** Archived in January 2026 and no longer maintained; use a maintained UI such as Headlamp instead.
 - **Metrics Server:** Collects resource metrics (CPU, memory) from nodes and pods.
 - **Monitoring Tools (Prometheus, Grafana, Datadog, etc.):** Offer advanced monitoring, visualization, and alerting capabilities.
 
@@ -701,7 +702,7 @@ A Deployment strategy in Kubernetes defines how updates to your application are 
 
 **Documentation:** [https://kubernetes.io/docs/tasks/debug-application-cluster/resource-usage-monitoring/](https://kubernetes.io/docs/tasks/debug-application-cluster/resource-usage-monitoring/)
 
-**Explanation:** Basic monitoring can be done through kubectl and the dashboard, but for in-depth analysis and historical data, you'll need a more robust solution.
+**Explanation:** Basic monitoring can be done through kubectl, but for in-depth analysis and historical data, you'll need a more robust solution.
 
 ### 38.  What are some best practices for writing Kubernetes YAML files?
 
@@ -709,12 +710,12 @@ A Deployment strategy in Kubernetes defines how updates to your application are 
 
 **Best Practices:**
 
-- **Indentation and Formatting:** Use consistent indentation (2 or 4 spaces) and a clear structure for readability.
+- **Indentation and Formatting:** Use 2-space indentation (the Kubernetes convention) and never tabs.
 - **Comments:** Add meaningful comments to explain the purpose of different sections.
 - **Labels and Annotations:** Use labels for selectors and annotations for metadata.
 - **Templates and Functions:**  Leverage templates (Helm) and functions to avoid repetition and manage complex configurations.
 - **Versioning:** Use a source code management system (Git) to track changes to YAML files.
-- **Validation:**  Validate your YAML files using tools like `kubectl apply --dry-run=client -f <file> -o yaml` or online validators.
+- **Validation:** Validate against the API server with `kubectl apply --dry-run=server -f <file>`, or with a schema tool such as kubeconform.
 
 **Documentation:**  While not a single documentation page, Kubernetes documentation emphasizes these practices throughout.
 
@@ -728,12 +729,12 @@ A ServiceAccount provides an identity for processes running within Pods. It's us
 
 - **Control Access to API Server:** Limit the actions Pods can perform by associating them with specific permissions using RBAC.
 - **Authentication:** Authenticate requests from Pods to the Kubernetes API server.
-- **Secrets Management:**  Mount Secrets as volumes for use by Pods.
+- **Image Pull Secrets:** Attach `imagePullSecrets` that Pods using the ServiceAccount inherit.
 
 **Key Points:**
 
-- Automatically created in each namespace.
-- Managed by Kubernetes.
+- A `default` ServiceAccount is created in each namespace.
+- Since Kubernetes 1.24, API tokens are short-lived projected tokens, not automatically created Secrets.
 - Used to authenticate Pod actions, not user actions.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/)
@@ -781,7 +782,7 @@ spec:
 **Healthcare** | Deploying and scaling healthcare applications<br>Storing and analyzing patient data<br>Running medical imaging workloads
 **Media and Entertainment** | Streaming media content<br>Rendering and processing video<br>Delivering personalized content
 
-**Explanation:**  Kubernetes' flexibility and scalability make it suitable for a wide range of use cases across different industries, from tech companies to traditional enterprises.
+**Explanation:** The table lists common patterns, not an exhaustive list.
 
 ### 42. How do you upgrade a Kubernetes cluster to a newer version?
 
@@ -802,7 +803,7 @@ spec:
    - On each remaining control plane node, run `kubeadm upgrade node`.
 
 3. **Node Upgrades:**
-   - Drain (cordon and evict Pods) one node at a time: `kubectl drain <node-name> --ignore-daemonsets`.
+   - Drain (cordon and evict Pods) one node at a time: `kubectl drain <node-name> --ignore-daemonsets` (add `--delete-emptydir-data` if Pods use `emptyDir`).
    - On worker nodes, upgrade `kubeadm` and run `kubeadm upgrade node`.
    - Upgrade `kubelet` and `kubectl` with your package manager, using the `pkgs.k8s.io` repository for the target minor version.
    - Restart the kubelet: `sudo systemctl daemon-reload && sudo systemctl restart kubelet`.
@@ -831,7 +832,7 @@ spec:
 
 **Addressing the Challenges:**
 
-- **StatefulSets:** Use StatefulSets to manage deployments and updates of stateful applications.
+- **StatefulSets:** Use StatefulSets to manage deployments and updates of stateful applications. `volumeClaimTemplates` give each replica its own PVC, and by default those PVCs are kept when the StatefulSet scales down.
 - **PersistentVolumes and PVCs:** Provide persistent storage and manage storage claims.
 - **Headless Services:** Expose each instance of a stateful application with a unique DNS name.
 - **Init Containers:** Perform initialization tasks (e.g., data loading) before the main containers start.
@@ -853,7 +854,7 @@ spec:
 
 **Steps:**
 
-1. **Enable NetworkPolicy Support:**  Ensure your cluster and CNI plugin support NetworkPolicies.
+1. **Enable NetworkPolicy Support:** Ensure your CNI plugin enforces NetworkPolicies. Flannel alone does not, so policies are silently ignored.
 2. **Define NetworkPolicy Resources:**  Create YAML files specifying your desired network rules.
 3. **Apply NetworkPolicies:** Apply the policies to your cluster using `kubectl apply`.
 
@@ -869,13 +870,13 @@ spec:
 
 - **kubectl Logs:** Inspect container logs using `kubectl logs <pod-name>`.
 - **kubectl Describe:** Get detailed information about resources (Pods, Deployments, Services) using `kubectl describe <resource-type> <resource-name>`.
-- **kubectl Exec:** Execute commands inside a running container for interactive debugging (`kubectl exec -it <pod-name> -- bash`).
+- **kubectl Exec:** Execute commands inside a running container for interactive debugging (`kubectl exec -it <pod-name> -- sh`; many images lack bash).
 - **Port Forwarding:**  Forward a local port to a port in a Pod (`kubectl port-forward <pod-name> <local-port>:<pod-port>`).
-- **Ephemeral Containers:** Create temporary debugging containers in a running Pod for troubleshooting.
+- **Ephemeral Containers:** Attach a temporary debugging container to a running Pod (`kubectl debug -it <pod-name> --image=busybox --target=<container-name>`).
 
 **Documentation:** [https://kubernetes.io/docs/tasks/debug-application-cluster/](https://kubernetes.io/docs/tasks/debug-application-cluster/)
 
-**Explanation:**  Mastering these debugging tools is crucial for efficiently identifying and resolving issues in your Kubernetes applications.
+**Explanation:** Start with logs and events, then move to `exec` or an ephemeral container if those are not enough.
 
 ### 46. Explain the concept of a Kubernetes context, and how do you switch between different contexts?
 
@@ -912,7 +913,7 @@ kubectl config use-context production
 **LimitRange:**
 
 - A LimitRange object sets resource usage limits (CPU, memory, storage) for namespaces.
-- It prevents resource starvation and enforces resource quotas at the Pod level.
+- It sets min and max bounds per Pod, container, or PersistentVolumeClaim, and default requests and limits for containers. Namespace-wide totals belong to ResourceQuota.
 
 **Use Case:**
 
@@ -940,7 +941,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/policy/limit-range/](https://kubernetes.io/docs/concepts/policy/limit-range/)
 
-**Explanation:** LimitRanges provide a way to establish resource consumption boundaries within namespaces, promoting fairness and preventing resource exhaustion.
+**Explanation:** LimitRanges provide a way to establish resource consumption boundaries within namespaces, promoting fairness and preventing resource exhaustion. Use `type: Container` for defaults; `type: Pod` only sets bounds.
 
 ### 48. Describe the process of setting up a highly available Kubernetes cluster.
 
@@ -948,11 +949,10 @@ spec:
 
 **Setting up a highly available Kubernetes cluster involves:**
 
-1. **Multiple Master Nodes:**  Provision multiple master nodes (ideally 3 or more) to eliminate single points of failure.
-2. **Load Balancing:** Use a load balancer to distribute traffic to the master nodes.
-3. **Shared Storage:** Utilize a shared storage solution (network-attached storage, cloud storage) for the cluster's state and persistent data.
-4. **etcd Replication:**  Configure etcd (the key-value store for Kubernetes) in a distributed and highly available manner.
-5. **Monitoring and Alerting:** Implement monitoring and alerting systems to detect and respond to failures quickly.
+1. **Multiple Control Plane Nodes:** Provision at least 3 control plane nodes (an odd number) to eliminate single points of failure and keep etcd quorum.
+2. **Load Balancing:** Put a load balancer in front of the kube-apiserver instances on the control plane nodes.
+3. **etcd Replication:** Run etcd (the key-value store for Kubernetes) as a multi-member cluster, either stacked on the control plane nodes or on dedicated nodes. Each member needs its own local disk; do not place etcd on shared storage.
+4. **Monitoring and Alerting:** Implement monitoring and alerting systems to detect and respond to failures quickly.
 
 **Key Considerations:**
 
@@ -973,12 +973,13 @@ spec:
 |---|---|---|
 | Purpose | Provides the core system for the physical or virtual machine running the Kubernetes node. | Provides an isolated environment for running containers within a node. |
 | Scope | Entire node | Individual containers |
-| Examples | Linux (Ubuntu, CentOS), Windows Server | containerd, CRI-O (Docker Engine via cri-dockerd) |
+| Examples | Linux (Ubuntu, RHEL), Windows Server | containerd, CRI-O |
 
 **Explanation:**
 
 - **Node OS:**  Manages hardware resources, provides system libraries, and runs the kubelet (Kubernetes agent) on each node.
 - **Container Runtime:**  Handles container lifecycle management (starting, stopping, interacting with containers) within the node, using the Container Runtime Interface (CRI).
+- **Docker:** Docker Engine is not a CRI runtime. Kubernetes removed dockershim in 1.24; to keep using Docker Engine, install the third-party cri-dockerd adapter.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/overview/components/](https://kubernetes.io/docs/concepts/overview/components/)
 
@@ -988,13 +989,14 @@ spec:
 
 **Backup and Restore Strategies:**
 
-- **etcd Backup:**  Back up the etcd data store, as it holds the cluster's state. Use `etcdctl` or other backup tools.
+- **etcd Backup:** Back up the etcd data store, as it holds the cluster's state. Use `etcdctl snapshot save <file>` against a healthy member, or another backup tool.
+- **Control Plane Certificates:** For kubeadm clusters, back up `/etc/kubernetes/pki` (CA, certificates, and service account keys).
 - **Resource Definitions:**  Back up YAML definitions for deployments, services, and other resources. Version control (Git) is crucial here.
 - **Persistent Volume Data:** Back up data stored on PersistentVolumes using appropriate tools for the underlying storage provider.
 
 **Restoration:**
 
-- **Restore etcd from Backup:** If needed, restore the etcd data to a new or existing cluster.
+- **Restore etcd from Backup:** Restore the snapshot into a new data directory with `etcdutl snapshot restore`, then bring the control plane up on it.
 - **Apply Resource Definitions:** Apply your backed-up YAML files to recreate your applications and configurations.
 - **Restore Persistent Data:**  Restore data to PersistentVolumes based on your backup strategy.
 
