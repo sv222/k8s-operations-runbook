@@ -1618,17 +1618,13 @@ kubectl logs my-pod -c my-container
 
 | Level | Description | Use in Production |
 |---|---|---|
-| **Stable (v1)** | - APIs are finalized and unlikely to change.
+| **Stable (v1)** | APIs are finalized and unlikely to change; backwards compatibility is a high priority. | **Recommended** |
+| **Beta (v1beta1, v2beta1, etc.)** | APIs are still evolving; breaking changes are possible between versions (e.g., v1beta1 to v1beta2). | Use with caution; test thoroughly. |
+| **Alpha (v1alpha1, v2alpha1, etc.)** | APIs are experimental and may change significantly; no stability or compatibility guarantees. Often disabled by default. | **Not recommended** for production. |
 
-- Backwards compatibility is a high priority. |  **Recommended** |
-| **Beta (v1beta1, v2beta1, etc.)** | - APIs are still evolving.
-  - Breaking changes are possible between minor versions (e.g., v1beta1 to v1beta2). | Use with caution; test thoroughly. |
-| **Alpha (v1alpha1, v2alpha1, etc.)** | - APIs are experimental and subject to significant changes.
-- No guarantees of stability or backwards compatibility. |  **Not recommended** for production. |
+**Documentation:** [API versioning](https://kubernetes.io/docs/reference/using-api/#api-versioning)
 
-**Documentation:**  Kubernetes API documentation indicates the stability level for each API version.
-
-**Explanation:** Always be mindful of the API stability level when writing Kubernetes configurations to avoid unexpected issues due to API changes.
+**Explanation:** Check the stability level before relying on an API version, since beta and alpha changes can break manifests after an upgrade.
 
 ### 77. How do you configure a Kubernetes Pod to run on a specific node?
 
@@ -1688,7 +1684,7 @@ spec:
 
 **Use Cases:**
 
-- **Stateful Applications:** Exposing each Pod in a StatefulSet with a unique DNS name.
+- **Stateful Applications:** Exposing each Pod in a StatefulSet with a unique DNS name. The StatefulSet's `serviceName` must match this Service.
 - **Peer-to-Peer Communication:** Facilitating direct communication between Pods without going through a Service's IP.
 - **Custom Service Discovery:** Implementing your own service discovery mechanism.
 
@@ -1717,7 +1713,7 @@ spec:
 
 1. **Choose a Registry Image:** Select a Docker registry image (e.g., `registry:2`).
 2. **Create a Deployment:** Deploy the registry image as a Deployment in your Kubernetes cluster.
-3. **Persistent Storage:**  Use a PersistentVolume to provide persistent storage for the registry's images.
+3. **Persistent Storage:**  Use a PersistentVolumeClaim, backed by a PersistentVolume or StorageClass, to store the registry's images.
 4. **Service (Optional):**  Create a Service to expose the registry within the cluster.
 5. **Ingress (Optional):** Use an Ingress to make the registry accessible from outside the cluster (if needed).
 6. **Secure with TLS:**  Obtain and configure SSL/TLS certificates to secure communication with the registry.
@@ -1745,7 +1741,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/network-policies/](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 
-**Explanation:**  NetworkPolicies are crucial for securing your applications and limiting the impact of potential attacks in Kubernetes.
+**Explanation:**  NetworkPolicies take effect only if the cluster's network plugin enforces them (for example, Calico or Cilium). A Pod that no policy selects accepts all traffic.
 
 ### 81. Explain the concept of a Kubernetes ServiceAccount token, and describe its security implications.
 
@@ -1753,17 +1749,18 @@ spec:
 
 **ServiceAccount Token:**
 
-- An automatically generated, time-limited JWT (JSON Web Token) provided to each Pod by Kubernetes.
+- A JWT (JSON Web Token) that Kubernetes issues to each Pod through a projected volume. Since Kubernetes 1.24, no long-lived token Secret is created automatically.
 - Used for authenticating Pod requests to the Kubernetes API server.
 
 **Security Implications:**
 
 - **Access Control:**  ServiceAccount tokens grant Pods the permissions associated with the linked ServiceAccount. Securely manage ServiceAccount permissions using RBAC.
-- **Token Rotation:** Kubernetes automatically rotates ServiceAccount tokens, limiting the impact of compromised tokens.
-- **Token Storage:**  Tokens are stored within Pods, and accessing them directly from outside the cluster can be challenging.
+- **Token Rotation:** Projected tokens are time-limited, and the kubelet refreshes them before they expire, which limits the impact of a leaked token.
+- **Token Storage:**  The token is mounted at `/var/run/secrets/kubernetes.io/serviceaccount/token`. Anyone who can read that file or exec into the Pod can use it.
+- **Minimize Exposure:**  Set `automountServiceAccountToken: false` on Pods or ServiceAccounts that never call the API.
 - **Auditing and Monitoring:**  Monitor API server logs and audit events related to ServiceAccount token usage to detect suspicious activity.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/configuration/secret/#service-account-token-secrets](https://kubernetes.io/docs/concepts/configuration/secret/#service-account-token-secrets)
+**Documentation:** [https://kubernetes.io/docs/concepts/security/service-accounts/](https://kubernetes.io/docs/concepts/security/service-accounts/)
 
 **Explanation:** ServiceAccount tokens are essential for Pod authentication but require careful management to maintain cluster security.
 
@@ -1799,7 +1796,7 @@ spec:
 - **`persistentVolumeClaim`:** Specifies that the volume source is a PVC.
 - **`claimName`:**  Provide the name of the existing PVC you want to use.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/storage/persistent-volumes/#using-persistent-volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#using-persistent-volumes)
+**Documentation:** [https://kubernetes.io/docs/concepts/storage/persistent-volumes/](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
 
 ### 83. What is the difference between `kubectl port-forward` and `kubectl proxy`?
 
@@ -1808,22 +1805,19 @@ spec:
 | Feature | `kubectl port-forward` | `kubectl proxy` |
 |---|---|---|
 | Scope | Forwards a single port from a Pod or Service to your local machine. | Creates a proxy server on your local machine that forwards all requests to the Kubernetes API server. |
-| Use Cases | - Accessing a service running in a Pod that's not exposed externally.
-
-- Debugging applications within a Pod. | - Interacting with the Kubernetes API from your local machine or scripts.
-- Using tools like the Kubernetes dashboard. |
+| Use Cases | Accessing a service in a Pod that is not exposed externally; debugging applications inside a Pod. | Interacting with the Kubernetes API from your local machine or scripts. |
 | Example | `kubectl port-forward my-pod 8080:80` (forwards port 80 in the Pod to port 8080 on your local machine) | `kubectl proxy --port=8080` (creates a proxy server on localhost:8080) |
 
 **Documentation:**
 
 - `kubectl port-forward`: [https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/)
-- `kubectl proxy`: [https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#proxy](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#proxy)
+- `kubectl proxy`: [https://kubernetes.io/docs/reference/kubectl/generated/kubectl_proxy/](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_proxy/)
 
 ### 84.  How do you configure a Service to expose a Deployment on a specific port range?
 
 **Answer:**
 
-A Service cannot expose a range of ports in a single entry - each entry in the `ports` array takes a single integer `port`, `targetPort`, and (for `NodePort`) `nodePort`. To expose multiple ports, list them as separate entries.
+A Service cannot expose a range of ports in a single entry - each entry in the `ports` array takes a single integer `port`, `targetPort`, and (for `NodePort`) `nodePort`. To expose multiple ports, list them as separate entries. `nodePort` values must fall in the cluster's NodePort range, which is 30000-32767 by default (set with the kube-apiserver `--service-node-port-range` flag), and `nodePort` is only allowed on `NodePort` and `LoadBalancer` Services.
 
 **Example:**
 
@@ -1833,6 +1827,7 @@ kind: Service
 metadata:
   name: my-service
 spec:
+  type: NodePort
   selector:
     app: my-app
   ports:
@@ -1859,7 +1854,7 @@ spec:
 
 **Namespaces and RBAC:**
 
-- **Resource Isolation:** Namespaces provide a logical boundary for resources (Pods, Deployments, Services).
+- **Resource Isolation:** Namespaces provide a logical boundary for resources (Pods, Deployments, Services). Cluster-scoped resources such as Nodes and PersistentVolumes are not namespaced.
 - **RBAC Scope:** Role-Based Access Control (RBAC) policies can be applied at the namespace level, controlling access to resources within that namespace.
 
 **How They Work Together:**
@@ -1897,7 +1892,8 @@ Kubernetes Deployments handle automated rollouts by default using the `RollingUp
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
-# ... other deployment configurations ...
+metadata:
+  name: my-deployment
 spec:
   replicas: 3
   selector:
@@ -1921,9 +1917,9 @@ spec:
 
 **Explanation:**
 
-- This configuration ensures a rolling update when the `my-image:latest` image changes.
+- A rollout starts only when the Pod template changes, such as a new image reference. Pushing a new image under the same `:latest` tag leaves the template unchanged, so no rollout starts; use unique tags or `kubectl rollout restart`.
 - At most, one extra Pod (`25%` of `3` replicas) will be created during the update.
-- Up to one Pod can be unavailable (`25%` of `3` replicas) while new Pods are being created and becoming ready.
+- No Pods can be unavailable: `25%` of `3` rounds down to `0` for `maxUnavailable`, so old Pods are removed only after new ones are ready.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment)
 
@@ -1937,6 +1933,7 @@ spec:
 
    ```bash
    kubectl logs <pod-name>
+   kubectl logs <pod-name> --previous   # output of the last crashed container
    ```
 
    - Look for error messages, exceptions, or stack traces within the container logs.
@@ -1958,16 +1955,12 @@ spec:
    - If the container is starting and then crashing, you might be able to exec into it briefly to inspect files, run commands, or debug further.
 
 4. **Check Resource Limits:**
-   - Ensure that the Pod has sufficient resource requests and limits (CPU, memory) and is not being evicted due to resource constraints.
+   - Check `Last State` in the describe output for `Reason: OOMKilled` (exit code 137), and raise the memory limit if the container exceeds it.
 
-5. **Image Pull Issues:**
-   - Verify that the container image can be pulled from the registry.
-   - Check for authentication issues with private registries.
-
-6. **Application Errors:**
+5. **Application Errors:**
    - Review the application code for potential bugs, configuration issues, or dependencies that might be causing crashes.
 
-**Documentation:** [https://kubernetes.io/docs/tasks/debug-application-cluster/debug-running-pod/](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-running-pod/)
+**Documentation:** [https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/)
 
 ### 88. Explain the concept of a Kubernetes PersistentVolume (PV) and its lifecycle.
 
@@ -1980,11 +1973,11 @@ spec:
 
 **PV Lifecycle:**
 
-1. **Provisioning:**  An administrator creates a PV, either statically (manually) or dynamically (using StorageClasses).
+1. **Provisioning:**  An administrator creates a PV statically, or it is created dynamically from a StorageClass.
 2. **Available:**  The PV is ready to be claimed by a PersistentVolumeClaim (PVC).
 3. **Bound:**  A PVC requests storage, and a matching PV is bound to it.
-4. **Released:** When the PVC is deleted, the PV is released but retains its data.
-5. **Deleting:**  An administrator can delete a released PV, which also deletes the underlying storage.
+4. **Released:** When the PVC is deleted, the PV moves to Released. Its data stays on the volume, and the PV cannot be bound to a new claim until it is reclaimed.
+5. **Reclaim:**  The `persistentVolumeReclaimPolicy` decides what happens next. `Retain` keeps the PV and its data for manual cleanup; `Delete` removes the PV and the underlying storage. If automatic reclaim fails, the PV enters the `Failed` phase.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/storage/persistent-volumes/](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
 
@@ -1999,6 +1992,8 @@ spec:
 2. **Create RoleBindings:**  Create RoleBindings that grant Roles to users or groups.
 
 3. **(Optional) ClusterRoles and ClusterRoleBindings:**  For cluster-wide permissions, use ClusterRoles and ClusterRoleBindings instead of Roles and RoleBindings.
+
+4. **Verify:**  Check the result with `kubectl auth can-i get pods --as=jane -n default`.
 
 **Example:**
 
@@ -2040,7 +2035,7 @@ roleRef:
 **Service Mesh:**
 
 - A dedicated infrastructure layer for managing service-to-service communication in a microservices architecture.
-- Typically implemented as a network proxy (sidecar) alongside your applications.
+- Typically implemented as a network proxy (sidecar) alongside your applications. Some implementations, such as Istio ambient mode, use per-node proxies instead.
 
 **Benefits:**
 
@@ -2053,11 +2048,11 @@ roleRef:
 
 - Istio
 - Linkerd
-- Consul Connect
+- Consul (service mesh)
 
-**Documentation:** While not a single page, Kubernetes documentation often refers to service meshes in the context of microservices and networking. Service mesh-specific documentation (Istio, Linkerd) is also relevant.
+**Documentation:** Kubernetes has no dedicated service mesh page. See the [Istio documentation](https://istio.io/latest/docs/) and the [Linkerd documentation](https://linkerd.io/).
 
-**Explanation:**  As microservices architectures become more complex, service meshes help manage communication, enhance security, and improve observability.
+**Explanation:**  A mesh moves networking logic such as mTLS and retries out of application code, so the same policies apply to every service.
 
 ### 91. How do you configure a Kubernetes Deployment to use a specific container image pull policy?
 
@@ -2068,7 +2063,7 @@ Use the `imagePullPolicy` field in the container specification of your Deploymen
 **Image Pull Policies:**
 
 - **`Always`:**  Always pull the image from the registry, even if it exists locally.
-- **`IfNotPresent` (default for images with a specific tag):**  Pull the image only if it's not present locally. Note that when the tag is `:latest` or omitted, the default pull policy is `Always`.
+- **`IfNotPresent`:**  Pull the image only if it is not present locally. This is the default for images with a specific tag. When the tag is `:latest` or omitted, the default is `Always`.
 - **`Never`:** Never pull the image. Use only the local image, if available.
 
 **Example:**
@@ -2107,14 +2102,14 @@ spec:
 
 **Scheduling Process:**
 
-1. **Pod Creation:** When a Pod is created without a node assignment, the scheduler selects a suitable node.
+1. **Pod Creation:** When a Pod is created without a node assignment, the scheduler selects a suitable node. Pods that already set `spec.nodeName` skip scheduling.
 2. **Filtering:**  The scheduler filters nodes that meet the Pod's resource requests and other constraints (affinity, taints).
-3. **Scoring:**  The remaining nodes are scored based on factors like resource utilization, data locality, and other preferences.
+3. **Scoring:**  The remaining nodes are scored by plugins. The defaults include NodeResourcesFit (`LeastAllocated` by default, which favors nodes with the most free resources) and ImageLocality (favors nodes that already have the image).
 4. **Binding:** The Pod is bound to the node with the highest score.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/scheduling-eviction/kube-scheduler/](https://kubernetes.io/docs/concepts/scheduling-eviction/kube-scheduler/)
 
-**Explanation:** The scheduler is crucial for efficient resource utilization and ensuring that Pods run on appropriate nodes.
+**Explanation:** Placement is based on Pod resource requests, not live usage, so accurate `requests` values matter.
 
 ### 93. What are some common causes of resource contention in a Kubernetes cluster, and how do you mitigate them?
 
@@ -2125,7 +2120,7 @@ spec:
 **Common Causes:**
 
 - **Insufficient Resource Requests/Limits:** Pods without resource requests or with very high limits can consume excessive resources.
-- **Overcommitting Resources:**  Scheduling more Pods than the cluster can handle, leading to resource starvation.
+- **Overcommitting Resources:**  The scheduler places Pods by their requests, but limits can add up to more than node capacity, so bursts lead to starvation.
 - **"Noisy Neighbors":**  Pods running resource-intensive tasks that impact other Pods on the same node.
 - **Storage Bottlenecks:**  Multiple Pods accessing the same storage volume with high I/O demands.
 
@@ -2133,8 +2128,9 @@ spec:
 
 - **Resource Quotas:**  Limit resource consumption at the namespace level.
 - **LimitRanges:**  Set default resource requests and limits for Pods in a namespace.
+- **PriorityClasses:**  Give critical Pods a higher `priorityClassName` so they are scheduled first and can preempt lower-priority Pods.
 - **Resource Requests and Limits:**  Define appropriate resource requests and limits for all Pods.
-- **Quality of Service (QoS) Classes:** Use QoS classes (Guaranteed, Burstable, BestEffort) to prioritize Pods.
+- **Quality of Service (QoS) Classes:** Kubernetes assigns Guaranteed, Burstable, or BestEffort based on requests and limits. These classes determine eviction order under node pressure.
 - **Node Affinity/Anti-affinity:**  Control Pod placement to avoid scheduling conflicting applications on the same node.
 - **Monitoring and Alerting:**  Proactively monitor resource usage and set up alerts for potential contention issues.
 
@@ -2158,6 +2154,7 @@ spec:
 **How They Work:**
 
 - A node with a taint will repel Pods unless the Pods have a matching toleration.
+- Taint effects: `NoSchedule` blocks new Pods without a matching toleration; `PreferNoSchedule` is a soft version; `NoExecute` also evicts running Pods without a toleration. `tolerationSeconds` sets how long a Pod can stay after a `NoExecute` taint is added.
 - Tolerations allow Pods to "tolerate" the taint and be scheduled on the node.
 
 **Example:**
@@ -2219,6 +2216,8 @@ spec:
   - **`searches`:** (Optional) A list of DNS search domains.
   - **`options`:**  (Optional) Additional DNS options.
 
+To keep cluster DNS and only add nameservers or search domains, use `dnsPolicy: ClusterFirst` with `dnsConfig`; the entries are merged into the generated configuration.
+
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
 
 ### 96. What are some security best practices for container images used in Kubernetes?
@@ -2228,15 +2227,15 @@ spec:
 **Container Image Security:**
 
 - **Use Trusted Images:** Obtain images from reputable sources (e.g., Docker Hub official images, your private registry).
-- **Image Scanning:** Scan images for vulnerabilities and malware using tools like Clair, Trivy, or Anchore Engine.
-- **Image Signing:**  Sign images to verify their integrity and authenticity.
+- **Image Scanning:** Scan images for vulnerabilities and malware using tools like Trivy or Grype.
+- **Image Signing:**  Sign images to verify their integrity and authenticity, for example with Sigstore cosign.
 - **Least Privilege:**  Run containers as a non-root user to limit the impact of potential exploits.
 - **Security Contexts:**  Define Security Contexts to control container privileges and access to resources within the Pod.
 - **Network Policies:**  Implement Network Policies to restrict container network communication.
 - **Secrets Management:**  Never store secrets directly in container images. Use Kubernetes Secrets or external secrets management solutions.
 - **Regular Updates:**  Keep images up-to-date with the latest security patches.
 
-**Documentation:** While not a single page, security best practices are discussed throughout Kubernetes documentation, especially in the security section and when referring to image management.
+**Documentation:** [https://kubernetes.io/docs/concepts/security/](https://kubernetes.io/docs/concepts/security/)
 
 ### 97. Explain the difference between a deployment update and a deployment rollout in Kubernetes.
 
@@ -2258,6 +2257,7 @@ spec:
 
 - You update a Deployment to use a new container image.
 - Kubernetes performs a rollout to replace the Pods with the updated image, following the defined rollout strategy.
+- Watch progress with `kubectl rollout status deployment/<name>`.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 
@@ -2273,7 +2273,7 @@ spec:
    kubectl get events --all-namespaces
    ```
 
-   - Lists events across all namespaces (or use `-n <namespace>` for a specific namespace).
+   - Lists events across all namespaces (or use `-n <namespace>` for a specific namespace). Events expire after one hour by default (kube-apiserver `--event-ttl`), so export them if you need history.
 
 2. **kubectl describe:**
 
@@ -2284,14 +2284,14 @@ spec:
    - The "Events" section of the output for resources like Pods, Deployments, and ReplicaSets provides details about events related to those resources.
 
 3. **Event Logging and Monitoring Tools:**
-   - Configure Kubernetes to send events to a centralized logging system (e.g., Elasticsearch, Splunk) for long-term storage and analysis.
+   - Kubernetes does not forward events off-cluster by itself. Run an event exporter that sends them to a centralized logging system (e.g., Elasticsearch, Splunk) for long-term storage and analysis.
    - Use monitoring tools (Prometheus, Datadog, Grafana) to visualize event data and create alerts.
 
 **Documentation:**
 
 - Events: [https://kubernetes.io/docs/reference/kubernetes-api/cluster-resources/event-v1/](https://kubernetes.io/docs/reference/kubernetes-api/cluster-resources/event-v1/)
 
-**Explanation:**  Events provide valuable insights into the activities and changes happening within your cluster, aiding in debugging and monitoring.
+**Explanation:**  Events are short-lived and informational, so use them alongside metrics and logs rather than as a replacement.
 
 ### 99. What are some common strategies for implementing disaster recovery in a Kubernetes environment?
 
@@ -2304,7 +2304,7 @@ spec:
   - Use DNS failover or a global load balancer to direct traffic to the healthy region.
 
 - **Backups and Restoration:**
-  - Regularly back up your cluster state (etcd), application data (PersistentVolumes), and configuration files.
+  - Regularly back up your cluster state (etcd, for example with `etcdctl snapshot save`), application data (PersistentVolumes), and configuration files (for example with Velero).
   - Test your restoration procedures to ensure you can recover quickly.
 
 - **Infrastructure as Code (IaC):**
@@ -2314,13 +2314,13 @@ spec:
 - **Disaster Recovery Drills:**
   - Conduct regular drills to test your disaster recovery plan and identify areas for improvement.
 
-**Documentation:** While not a single page, disaster recovery practices are covered in various sections of Kubernetes documentation related to cluster management, storage, and high availability. Cloud provider documentation on disaster recovery is also highly relevant.
+**Documentation:** [Backing up an etcd cluster](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/). Cloud provider disaster recovery documentation is also relevant.
 
 ### 100. How do you configure a Service to distribute traffic evenly across Pods using a different algorithm than the default?
 
 **Answer:**
 
-By default, kube-proxy forwards traffic to a randomly chosen ready endpoint (session affinity gives sticky sessions). The distribution behavior is determined by the kube-proxy mode (iptables, IPVS, or nftables), not by Service fields. The `externalTrafficPolicy` field only controls source-IP preservation (Local keeps the client IP, Cluster masks it), and `spec.type` selects how the Service is published.
+By default, kube-proxy spreads connections across ready endpoints at random. Setting `sessionAffinity: ClientIP` pins each client to one Pod instead. A Service has no field that selects a load-balancing algorithm. The options are: (1) the kube-proxy `--ipvs-scheduler` flag in IPVS mode, which applies cluster-wide; (2) `spec.trafficDistribution` (for example `PreferSameZone`), which prefers nearby endpoints but does not pick an algorithm; (3) a service mesh or Gateway/ingress controller, which can set per-route algorithms. The `externalTrafficPolicy` field controls how external traffic reaches Pods (`Local` keeps the client IP and routes only to local Pods; `Cluster` masks the client IP), and `spec.type` selects how the Service is exposed.
 
 **Example (Using `LoadBalancer` type and `Local` traffic policy):**
 
@@ -2343,7 +2343,7 @@ spec:
 **Explanation:**
 
 - **`type: LoadBalancer`:**  This tells Kubernetes to create a LoadBalancer.
-- **`externalTrafficPolicy: Local`:** This routes traffic only to the nodes where the backend Pods are running.
+- **`externalTrafficPolicy: Local`:** This sends external traffic only to Pods on the node that receives it. Nodes without a local Pod fail the load balancer's health check.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/service/](https://kubernetes.io/docs/concepts/services-networking/service/)
 
