@@ -459,7 +459,7 @@ To use the Secret, mount it as a volume or environment variable in your Pod defi
 
 ### 28. What are some common reasons for Pod failures in Kubernetes, and how do you troubleshoot them?
 
-**Answer:**  
+**Answer:**
 
 **Common Pod Failure Reasons:**
 
@@ -769,23 +769,11 @@ spec:
 
 **Industry** | **Use Cases**
 ---|---
-**Technology/Software** | - Microservices deployments
-
-- CI/CD pipelines
-- Scaling applications on demand
-- Cloud-native application development
-**E-commerce** | - Handling traffic spikes during peak seasons
-- Running containerized workloads for online stores
-- Deploying and managing payment gateways
-**Finance** | - Running risk analysis and fraud detection algorithms
-- Hosting high-frequency trading applications
-- Managing sensitive financial data securely
-**Healthcare** | - Deploying and scaling healthcare applications
-- Storing and analyzing patient data
-- Running medical imaging workloads
-**Media and Entertainment** | - Streaming media content
-- Rendering and processing video
-- Delivering personalized content
+**Technology/Software** | Microservices deployments<br>CI/CD pipelines<br>Scaling applications on demand<br>Cloud-native application development
+**E-commerce** | Handling traffic spikes during peak seasons<br>Running containerized workloads for online stores<br>Deploying and managing payment gateways
+**Finance** | Running risk analysis and fraud detection algorithms<br>Hosting high-frequency trading applications<br>Managing sensitive financial data securely
+**Healthcare** | Deploying and scaling healthcare applications<br>Storing and analyzing patient data<br>Running medical imaging workloads
+**Media and Entertainment** | Streaming media content<br>Rendering and processing video<br>Delivering personalized content
 
 **Explanation:**  Kubernetes' flexibility and scalability make it suitable for a wide range of use cases across different industries, from tech companies to traditional enterprises.
 
@@ -1241,10 +1229,10 @@ spec:
     image: log-collector-image
     volumeMounts:
     - name: shared-logs
-      mountPath: /var/log/app 
+      mountPath: /var/log/app
   volumes:
   - name: shared-logs
-    emptyDir: {} 
+    emptyDir: {}
 ```
 
 **Explanation:** Sidecar containers enhance the functionality of Pods by providing additional services without modifying the main application container.
@@ -1383,18 +1371,18 @@ spec:
            # ... other container configurations ...
            volumeMounts:
            - name: config-volume
-             mountPath: /etc/config 
+             mountPath: /etc/config
          volumes:
          - name: config-volume
            configMap:
-             name: my-config 
+             name: my-config
    ```
 
 3. **Access Configuration Data:** Your application can access the configuration data from the mounted volume.
 
    **Example (In the container):**
 
-   ```
+   ```bash
    # Read the database URL from the ConfigMap
    DATABASE_URL=$(cat /etc/config/database.url)
    ```
@@ -1461,10 +1449,10 @@ You could have separate Namespaces for "development," "testing," and "production
 
 ```bash
 # Execute the "ls -l" command inside the "my-container" container in the "my-pod" Pod
-kubectl exec -it my-pod -c my-container -- ls -l 
+kubectl exec -it my-pod -c my-container -- ls -l
 
 # Get the logs from the "my-container" container in the "my-pod" Pod
-kubectl logs my-pod -c my-container 
+kubectl logs my-pod -c my-container
 ```
 
 **Use Cases:**
@@ -1502,7 +1490,7 @@ kubectl logs my-pod -c my-container
      - name: my-container
        image: <your-private-registry>/my-image:tag
      imagePullSecrets:
-     - name: my-registry-secret 
+     - name: my-registry-secret
    ```
 
 **Explanation:**
@@ -1679,7 +1667,7 @@ spec:
         nodeSelectorTerms:
         - matchExpressions:
           - key: kubernetes.io/hostname
-            operator: In 
+            operator: In
             values:
             - node-1 # Match the node with hostname "node-1"
 ```
@@ -1922,9 +1910,9 @@ spec:
       containers:
       - name: my-container
         image: my-image:latest
-        imagePullPolicy: Always  
+        imagePullPolicy: Always
   strategy:
-    type: RollingUpdate 
+    type: RollingUpdate
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
@@ -1963,7 +1951,7 @@ spec:
 3. **Exec into the Pod (if possible):**
 
    ```bash
-   kubectl exec -it <pod-name> -- bash 
+   kubectl exec -it <pod-name> -- bash
    ```
 
    - If the container is starting and then crashing, you might be able to exec into it briefly to inspect files, run commands, or debug further.
@@ -2019,7 +2007,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: pod-reader
-  namespace: default 
+  namespace: default
 rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods"]
@@ -2034,12 +2022,12 @@ metadata:
   namespace: default
 subjects:
 - kind: User
-  name: jane 
+  name: jane
   apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: Role
-  name: pod-reader 
-  apiGroup: rbac.authorization.k8s.io 
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
 ```
 
 **Documentation:** [https://kubernetes.io/docs/reference/access-authn-authz/rbac/](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
@@ -2102,7 +2090,7 @@ spec:
       containers:
       - name: my-container
         image: my-image:tag
-        imagePullPolicy: Always 
+        imagePullPolicy: Always
 ```
 
 **Documentation:** [https://kubernetes.io/docs/concepts/containers/images/#updating-images](https://kubernetes.io/docs/concepts/containers/images/#updating-images)
@@ -2216,7 +2204,7 @@ spec:
     nameservers:
       - "192.168.1.100" # IP address of your custom DNS server
     searches:
-      - "mydomain.local" 
+      - "mydomain.local"
     options:
       - name: ndots
         value: "2"
@@ -2281,7 +2269,7 @@ spec:
 1. **kubectl get events:**
 
    ```bash
-   kubectl get events --all-namespaces 
+   kubectl get events --all-namespaces
    ```
 
    - Lists events across all namespaces (or use `-n <namespace>` for a specific namespace).
@@ -2289,7 +2277,7 @@ spec:
 2. **kubectl describe:**
 
    ```bash
-   kubectl describe pod <pod-name> 
+   kubectl describe pod <pod-name>
    ```
 
    - The "Events" section of the output for resources like Pods, Deployments, and ReplicaSets provides details about events related to those resources.
@@ -2342,7 +2330,7 @@ metadata:
   name: my-loadbalancer-service
 spec:
   type: LoadBalancer
-  externalTrafficPolicy: Local 
+  externalTrafficPolicy: Local
   selector:
     app: my-app
   ports:
@@ -2503,7 +2491,7 @@ spec:
     runAsGroup: 1000 # Run as group with ID 1000
   containers:
   - name: my-container
-    image: my-secure-image 
+    image: my-secure-image
 ```
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/security-context/](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/)
@@ -2655,7 +2643,7 @@ spec:
 
 **Types of Affinity:**
 
-- **Node Affinity:**  
+- **Node Affinity:**
   - **`requiredDuringSchedulingIgnoredDuringExecution`:** (Hard Affinity)  A Pod *must* be scheduled on a node that matches the specified rules.
   - **`preferredDuringSchedulingIgnoredDuringExecution`:**  (Soft Affinity) The scheduler tries to schedule the Pod on a matching node but may schedule it on a non-matching node if no suitable matches are available.
 
@@ -2875,7 +2863,7 @@ You can route traffic based on HTTP headers using an **Ingress** resource with a
 kubectl config get-contexts
 
 # Switch to the "production" context
-kubectl config use-context production 
+kubectl config use-context production
 
 # Now any kubectl commands will target the "production" cluster
 ```
@@ -2990,7 +2978,7 @@ spec:
         memory: "256Mi"
   containers:
   - name: my-app
-    image: my-app-image 
+    image: my-app-image
 ```
 
 **Explanation:**
@@ -3051,7 +3039,7 @@ spec:
      containers:
      - name: my-container
        image: my-image
-       command: ["my-app", "--database-url=$(DATABASE_URL)"] 
+       command: ["my-app", "--database-url=$(DATABASE_URL)"]
    ```
 
 **Documentation:** [https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/)
@@ -3088,7 +3076,7 @@ spec:
 
 1. **Create Separate Ingress Resources:** Define two Ingress resources, one for the "blue" (existing) deployment and one for the "green" (new) deployment. They should have the same hostnames but different paths or annotations to differentiate traffic.
 
-2. **Configure Ingress Controller:**  Configure your Ingress Controller (e.g., Nginx Ingress) to route traffic based on the Ingress rules.  
+2. **Configure Ingress Controller:**  Configure your Ingress Controller (e.g., Nginx Ingress) to route traffic based on the Ingress rules.
 
 3. **Deploy Green Deployment:** Deploy the "green" deployment alongside the "blue" deployment.
 
@@ -3146,7 +3134,7 @@ spec:
   volumes:
   - name: host-volume
     hostPath:
-      path: /var/lib/data # Directory on the host to mount 
+      path: /var/lib/data # Directory on the host to mount
       type: Directory
 ```
 
@@ -3235,7 +3223,7 @@ spec:
   containers:
   - name: my-container
     image: my-image
-  dnsPolicy: "ClusterFirst" # Use cluster DNS 
+  dnsPolicy: "ClusterFirst" # Use cluster DNS
 ```
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
@@ -3393,13 +3381,13 @@ spec:
 
 **Scheduling Syntax Example:**
 
-```
+```text
 0 0 * * *  # Run at midnight every day
 ```
 
 **Field Breakdown:**
 
-```
+```text
 * * * * *
 | | | | |
 | | | | ----- Day of week (0 - 6) (Sunday=0)
@@ -3424,7 +3412,7 @@ spec:
         spec:
           containers:
           - name: backup-job
-            image: backup-image 
+            image: backup-image
             command: ["/bin/sh", "-c", "backup_script.sh"]
 ```
 
@@ -3505,7 +3493,7 @@ kind: Pod
 metadata:
   name: my-pod
 spec:
-  serviceAccountName: my-service-account 
+  serviceAccountName: my-service-account
   containers:
   - name: my-container
     image: my-image
