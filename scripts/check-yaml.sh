@@ -7,7 +7,7 @@ dir=$(mktemp -d); trap 'rm -rf "$dir"' EXIT
 python3 -I - "$dir" <<'PY'
 import re, sys
 t = open('README.md', encoding='utf-8').read()
-for m in re.finditer(r'(<!-- skip-validate -->\n)?```ya?ml\n(.*?)```', t, re.S):
+for m in re.finditer(r'(^[ \t]*<!-- skip-validate -->\n)?^[ \t]*```ya?ml\n(.*?)```', t, re.S | re.M):
     if not m.group(1):
         open(f"{sys.argv[1]}/line{t[:m.start()].count(chr(10)) + 2:04d}.yaml", 'w').write(m.group(2))
 PY
