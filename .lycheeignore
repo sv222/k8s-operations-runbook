@@ -1,0 +1,6 @@
+# local and placeholder hosts used in examples
+^https?://localhost
+^https?://127\.0\.0\.1
+^https?://.*\.example\.(com|org)
+^https?://example\.
+^https?://my-
