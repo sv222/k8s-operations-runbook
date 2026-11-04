@@ -3728,7 +3728,7 @@ spec:
 - **Version Control:** Use Git or another version control system to track changes to your YAML files.
 - **Templates and Templating Tools:**  Use templating tools (Helm, Kustomize) to create reusable configuration templates and manage variations between environments.
 - **Modularization:**  Break down large YAML files into smaller, more manageable modules.
-- **Validation:**  Validate your YAML files before applying them to the cluster using `kubectl --dry-run=client -o yaml` or online validators.
+- **Validation:**  Validate your YAML files before applying them to the cluster using `kubectl apply --dry-run=client -f <file> -o yaml` or online validators.
 - **Comments and Documentation:** Add clear and concise comments to your YAML files to explain the purpose of different sections and configurations.
 - **Linting:** Use YAML linters to ensure consistent formatting, indentation, and adherence to best practices.
 
