@@ -1204,7 +1204,7 @@ kind: ResourceQuota
 metadata:
   name: my-namespace-quota
 spec:
-  limits:
+  hard:
     requests.cpu: "2" # Total CPU request limit
     requests.memory: "4Gi" # Total memory request limit
 ```
@@ -1292,9 +1292,17 @@ Use the `readinessProbe` field in the Pod template of your Deployment or other c
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
+metadata:
+  name: my-deployment
 # ... other deployment configurations ...
 spec:
+  selector:
+    matchLabels:
+      app: my-app
   template:
+    metadata:
+      labels:
+        app: my-app
     spec:
       containers:
       - name: my-container
@@ -1358,9 +1366,17 @@ spec:
    ```yaml
    apiVersion: apps/v1
    kind: Deployment
+   metadata:
+     name: my-deployment
    # ... other deployment configurations ...
    spec:
+     selector:
+       matchLabels:
+         app: my-app
      template:
+       metadata:
+         labels:
+           app: my-app
        spec:
          containers:
          - name: my-container
@@ -1639,6 +1655,9 @@ kind: Pod
 metadata:
   name: my-pod
 spec:
+  containers:
+  - name: my-container
+    image: my-image
   nodeSelector:
     disktype: ssd # Match nodes with the label "disktype: ssd"
 ```
@@ -1651,6 +1670,9 @@ kind: Pod
 metadata:
   name: my-pod
 spec:
+  containers:
+  - name: my-container
+    image: my-image
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:  # Pod must be scheduled on a matching node
@@ -2003,6 +2025,7 @@ rules:
   resources: ["pods"]
   verbs: ["get", "list", "watch"]
 
+---
 # RoleBinding to grant the "pod-reader" role to user "jane"
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -2064,9 +2087,17 @@ Use the `imagePullPolicy` field in the container specification of your Deploymen
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
+metadata:
+  name: my-deployment
 # ... other deployment configurations ...
 spec:
+  selector:
+    matchLabels:
+      app: my-app
   template:
+    metadata:
+      labels:
+        app: my-app
     spec:
       containers:
       - name: my-container
@@ -2146,11 +2177,19 @@ spec:
 - **Add a toleration to a Pod:**
 
    ```yaml
-   tolerations:
-   - key: "app"
-     operator: "Equal"
-     value: "special"
-     effect: "NoSchedule"
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: my-pod
+   spec:
+     containers:
+     - name: my-container
+       image: my-image
+     tolerations:
+     - key: "app"
+       operator: "Equal"
+       value: "special"
+       effect: "NoSchedule"
    ```
 
 **Documentation:** [https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
@@ -2970,25 +3009,49 @@ spec:
 1. **`env` Field (Key-Value Pairs):**
 
    ```yaml
-   env:
-   - name: DATABASE_URL
-     value: "https://mydb.example.com"
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: my-pod
+   spec:
+     containers:
+     - name: my-container
+       image: my-image
+       env:
+       - name: DATABASE_URL
+         value: "https://mydb.example.com"
    ```
 
 2. **`envFrom` Field (From ConfigMaps or Secrets):**
 
    ```yaml
-   envFrom:
-   - configMapRef:
-       name: my-config-map
-   - secretRef:
-       name: my-secret
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: my-pod
+   spec:
+     containers:
+     - name: my-container
+       image: my-image
+       envFrom:
+       - configMapRef:
+           name: my-config-map
+       - secretRef:
+           name: my-secret
    ```
 
 3. **Command Line Arguments:**
 
    ```yaml
-   command: ["my-app", "--database-url=$(DATABASE_URL)"] 
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: my-pod
+   spec:
+     containers:
+     - name: my-container
+       image: my-image
+       command: ["my-app", "--database-url=$(DATABASE_URL)"] 
    ```
 
 **Documentation:** [https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/)
@@ -3042,6 +3105,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/canary: "false"
 
+---
 # Green Ingress (initially inactive)
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -3551,9 +3615,9 @@ spec:
 
 **Answer:**
 
-**Automated Rollbacks in Deployments:**
+**Failed Rollouts in Deployments:**
 
-- Kubernetes Deployments automatically roll back to the previous revision if the new update fails to deploy successfully.
+- Kubernetes Deployments do not roll back automatically when a new update fails to deploy successfully. The rollout stalls, and `progressDeadlineSeconds` marks the Deployment as failed. You then roll back manually with `kubectl rollout undo` or through your CD tooling.
 
 **Configuration Options:**
 
@@ -3561,7 +3625,7 @@ spec:
 
 **Rollback Trigger:**
 
-- **Deployment Failure:**  If the rollout of a new ReplicaSet fails (e.g., Pods fail to become ready), the Deployment controller will automatically roll back to the previous ReplicaSet.
+- **Deployment Failure:**  If the rollout of a new ReplicaSet fails (e.g., Pods fail to become ready), the rollout stalls, and once `progressDeadlineSeconds` is exceeded the Deployment is marked as failed. No automatic rollback happens; you roll back to the previous ReplicaSet manually.
 
 **Manual Rollback:**
 
