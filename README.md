@@ -1,6 +1,6 @@
-# Kubernetes operations runbook: cluster administration, networking and troubleshooting
+# Kubernetes operations runbook
 
-A hands-on Kubernetes operations runbook for engineers who run clusters: 150 questions and answers on cluster administration, workloads, networking, storage, security, upgrades and troubleshooting, with tested YAML examples and `kubectl` commands for current Kubernetes releases.
+A practical runbook for engineers who operate Kubernetes clusters: 142 short answers with YAML examples and `kubectl` commands, covering workloads, networking, storage, security, upgrades and troubleshooting.
 
 Every YAML example is validated against the current Kubernetes schema in CI. See [CONTRIBUTING.md](CONTRIBUTING.md) if you want to improve the runbook.
 
