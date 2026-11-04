@@ -73,89 +73,81 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 - [65.  What is the purpose of a Kubernetes init container, and how is it different from a regular container?](#65--what-is-the-purpose-of-a-kubernetes-init-container-and-how-is-it-different-from-a-regular-container)
 - [66. Describe the process of configuring and using a ConfigMap in a Kubernetes Deployment.](#66-describe-the-process-of-configuring-and-using-a-configmap-in-a-kubernetes-deployment)
 - [67. Explain the different types of Kubernetes probes and their purposes.](#67-explain-the-different-types-of-kubernetes-probes-and-their-purposes)
-- [68. What is a Kubernetes Namespace, and how does it relate to resource isolation?](#68-what-is-a-kubernetes-namespace-and-how-does-it-relate-to-resource-isolation)
-- [69.  Explain the difference between `kubectl exec` and `kubectl logs` commands.](#69--explain-the-difference-between-kubectl-exec-and-kubectl-logs-commands)
-- [70.  How do you configure a Pod to use a specific Docker image from a private registry?](#70--how-do-you-configure-a-pod-to-use-a-specific-docker-image-from-a-private-registry)
-- [71.  What is a Kubernetes Ingress resource, and how does it differ from a Service?](#71--what-is-a-kubernetes-ingress-resource-and-how-does-it-differ-from-a-service)
-- [72. Explain the concept of a Kubernetes Deployment rollout strategy.](#72-explain-the-concept-of-a-kubernetes-deployment-rollout-strategy)
-- [73. How do you troubleshoot container image pull limits in a Kubernetes cluster?](#73-how-do-you-troubleshoot-container-image-pull-limits-in-a-kubernetes-cluster)
-- [74.  Describe the purpose and use cases for Kubernetes annotations.](#74--describe-the-purpose-and-use-cases-for-kubernetes-annotations)
-- [75.  What is a Kubernetes Custom Resource Definition (CRD), and provide an example use case.](#75--what-is-a-kubernetes-custom-resource-definition-crd-and-provide-an-example-use-case)
-- [76. Explain the difference between a stable, beta, and alpha API version in Kubernetes.](#76-explain-the-difference-between-a-stable-beta-and-alpha-api-version-in-kubernetes)
-- [77. How do you configure a Kubernetes Pod to run on a specific node?](#77-how-do-you-configure-a-kubernetes-pod-to-run-on-a-specific-node)
-- [78.  What is a Kubernetes Headless Service, and when would you use it?](#78--what-is-a-kubernetes-headless-service-and-when-would-you-use-it)
-- [79.  Describe the process of setting up a private Docker registry within a Kubernetes cluster.](#79--describe-the-process-of-setting-up-a-private-docker-registry-within-a-kubernetes-cluster)
-- [80. What is a Kubernetes NetworkPolicy, and how does it enhance cluster security?](#80-what-is-a-kubernetes-networkpolicy-and-how-does-it-enhance-cluster-security)
-- [81. Explain the concept of a Kubernetes ServiceAccount token, and describe its security implications.](#81-explain-the-concept-of-a-kubernetes-serviceaccount-token-and-describe-its-security-implications)
-- [82. How do you configure a Pod to use a pre-existing persistent volume claim?](#82-how-do-you-configure-a-pod-to-use-a-pre-existing-persistent-volume-claim)
-- [83. What is the difference between `kubectl port-forward` and `kubectl proxy`?](#83-what-is-the-difference-between-kubectl-port-forward-and-kubectl-proxy)
-- [84.  How do you configure a Service to expose a Deployment on a specific port range?](#84--how-do-you-configure-a-service-to-expose-a-deployment-on-a-specific-port-range)
-- [85. Explain the concept of a Kubernetes namespace and its relation to RBAC.](#85-explain-the-concept-of-a-kubernetes-namespace-and-its-relation-to-rbac)
-- [86. How do you configure a Kubernetes deployment to perform automated rollouts during container image updates?](#86-how-do-you-configure-a-kubernetes-deployment-to-perform-automated-rollouts-during-container-image-updates)
-- [87. What are some common troubleshooting steps for a Kubernetes Pod that is stuck in a "CrashLoopBackOff" state?](#87-what-are-some-common-troubleshooting-steps-for-a-kubernetes-pod-that-is-stuck-in-a-crashloopbackoff-state)
-- [88. Explain the concept of a Kubernetes PersistentVolume (PV) and its lifecycle.](#88-explain-the-concept-of-a-kubernetes-persistentvolume-pv-and-its-lifecycle)
-- [89. How do you implement role-based access control (RBAC) for users in a Kubernetes cluster?](#89-how-do-you-implement-role-based-access-control-rbac-for-users-in-a-kubernetes-cluster)
-- [90. Describe the purpose and benefits of using a Kubernetes ServiceMesh.](#90-describe-the-purpose-and-benefits-of-using-a-kubernetes-servicemesh)
-- [91. How do you configure a Kubernetes Deployment to use a specific container image pull policy?](#91-how-do-you-configure-a-kubernetes-deployment-to-use-a-specific-container-image-pull-policy)
-- [92. Explain the purpose and functionality of the Kubernetes scheduler.](#92-explain-the-purpose-and-functionality-of-the-kubernetes-scheduler)
-- [93. What are some common causes of resource contention in a Kubernetes cluster, and how do you mitigate them?](#93-what-are-some-common-causes-of-resource-contention-in-a-kubernetes-cluster-and-how-do-you-mitigate-them)
-- [94. Describe the purpose and use cases for Kubernetes taints and tolerations.](#94-describe-the-purpose-and-use-cases-for-kubernetes-taints-and-tolerations)
-- [95. How do you configure a Pod to use a specific DNS server in Kubernetes?](#95-how-do-you-configure-a-pod-to-use-a-specific-dns-server-in-kubernetes)
-- [96. What are some security best practices for container images used in Kubernetes?](#96-what-are-some-security-best-practices-for-container-images-used-in-kubernetes)
-- [97. Explain the difference between a deployment update and a deployment rollout in Kubernetes.](#97-explain-the-difference-between-a-deployment-update-and-a-deployment-rollout-in-kubernetes)
-- [98. How do you monitor the events happening within a Kubernetes cluster?](#98-how-do-you-monitor-the-events-happening-within-a-kubernetes-cluster)
-- [99. What are some common strategies for implementing disaster recovery in a Kubernetes environment?](#99-what-are-some-common-strategies-for-implementing-disaster-recovery-in-a-kubernetes-environment)
-- [100. How do you configure a Service to distribute traffic evenly across Pods using a different algorithm than the default?](#100-how-do-you-configure-a-service-to-distribute-traffic-evenly-across-pods-using-a-different-algorithm-than-the-default)
-- [101. Explain the purpose and use cases for Kubernetes Resource Limits.](#101-explain-the-purpose-and-use-cases-for-kubernetes-resource-limits)
-- [102. What are the different ways to access the Kubernetes API from outside the cluster?](#102-what-are-the-different-ways-to-access-the-kubernetes-api-from-outside-the-cluster)
-- [103.  Describe the process of creating and using a Kubernetes StorageClass.](#103--describe-the-process-of-creating-and-using-a-kubernetes-storageclass)
-- [104. Explain the concept of "Quality of Service" (QoS) classes for Pods in Kubernetes.](#104-explain-the-concept-of-quality-of-service-qos-classes-for-pods-in-kubernetes)
-- [105. How do you configure a Pod to run as a non-root user for security purposes?](#105-how-do-you-configure-a-pod-to-run-as-a-non-root-user-for-security-purposes)
-- [106. What are the key differences between a StatefulSet and a Deployment in Kubernetes?](#106-what-are-the-key-differences-between-a-statefulset-and-a-deployment-in-kubernetes)
-- [107. Explain the purpose and functionality of a Kubernetes EndpointSlice.](#107-explain-the-purpose-and-functionality-of-a-kubernetes-endpointslice)
-- [108. How do you configure a Pod to use a specific network interface on the node?](#108-how-do-you-configure-a-pod-to-use-a-specific-network-interface-on-the-node)
-- [109.  What is a Kubernetes Admission Controller, and describe its role in cluster security.](#109--what-is-a-kubernetes-admission-controller-and-describe-its-role-in-cluster-security)
-- [110. How do you configure a Kubernetes Service to use a specific external IP address?](#110-how-do-you-configure-a-kubernetes-service-to-use-a-specific-external-ip-address)
-- [111. Explain the concept of "affinity" in Kubernetes scheduling and its different types.](#111-explain-the-concept-of-affinity-in-kubernetes-scheduling-and-its-different-types)
-- [112. How do you perform a rolling update of a Kubernetes Deployment using a canary deployment strategy?](#112-how-do-you-perform-a-rolling-update-of-a-kubernetes-deployment-using-a-canary-deployment-strategy)
-- [113. What are some key considerations when designing a multi-tenant Kubernetes cluster?](#113-what-are-some-key-considerations-when-designing-a-multi-tenant-kubernetes-cluster)
-- [114. Describe the purpose and functionality of the Kubernetes Container Runtime Interface (CRI).](#114-describe-the-purpose-and-functionality-of-the-kubernetes-container-runtime-interface-cri)
-- [115.  How do you configure a Kubernetes Pod to use a custom hostname without modifying the container image?](#115--how-do-you-configure-a-kubernetes-pod-to-use-a-custom-hostname-without-modifying-the-container-image)
-- [116. What are some strategies for implementing zero-downtime deployments in Kubernetes?](#116-what-are-some-strategies-for-implementing-zero-downtime-deployments-in-kubernetes)
-- [117. Explain the purpose and functionality of a Kubernetes Custom Resource Definition (CRD) controller.](#117-explain-the-purpose-and-functionality-of-a-kubernetes-custom-resource-definition-crd-controller)
-- [118.  How do you configure a Kubernetes Service to route traffic based on HTTP headers?](#118--how-do-you-configure-a-kubernetes-service-to-route-traffic-based-on-http-headers)
-- [119. Explain the concept of a Kubernetes "context" and how it's used for managing multiple clusters.](#119-explain-the-concept-of-a-kubernetes-context-and-how-its-used-for-managing-multiple-clusters)
-- [120. How do you troubleshoot a Kubernetes Service that is not routing traffic to its backend Pods?](#120-how-do-you-troubleshoot-a-kubernetes-service-that-is-not-routing-traffic-to-its-backend-pods)
-- [121. Describe the purpose and benefits of using a Kubernetes Ingress Controller.](#121-describe-the-purpose-and-benefits-of-using-a-kubernetes-ingress-controller)
-- [122. Explain the concept of a Kubernetes container lifecycle hook and its different phases.](#122-explain-the-concept-of-a-kubernetes-container-lifecycle-hook-and-its-different-phases)
-- [123.  How do you configure resource requests and limits for init containers in Kubernetes?](#123--how-do-you-configure-resource-requests-and-limits-for-init-containers-in-kubernetes)
-- [124.  What are the different ways to pass environment variables to containers in Kubernetes?](#124--what-are-the-different-ways-to-pass-environment-variables-to-containers-in-kubernetes)
-- [125.  Explain the purpose and functionality of Kubernetes kube-proxy.](#125--explain-the-purpose-and-functionality-of-kubernetes-kube-proxy)
-- [126.  What are some strategies for implementing a blue/green deployment using an Ingress Controller?](#126--what-are-some-strategies-for-implementing-a-bluegreen-deployment-using-an-ingress-controller)
-- [127.  How do you configure a Pod to have access to the host's file system in Kubernetes?](#127--how-do-you-configure-a-pod-to-have-access-to-the-hosts-file-system-in-kubernetes)
-- [128.  What is a Kubernetes "headless" Service, and provide an example use case.](#128--what-is-a-kubernetes-headless-service-and-provide-an-example-use-case)
-- [129. Explain the purpose and functionality of Kubernetes NetworkPolicies.](#129-explain-the-purpose-and-functionality-of-kubernetes-networkpolicies)
-- [130.  How do you configure a Pod to use a specific DNS policy in Kubernetes?](#130--how-do-you-configure-a-pod-to-use-a-specific-dns-policy-in-kubernetes)
-- [131. What are some strategies for securing secrets at rest in Kubernetes?](#131-what-are-some-strategies-for-securing-secrets-at-rest-in-kubernetes)
-- [132. Describe the process of scaling a Kubernetes Deployment using the Horizontal Pod Autoscaler (HPA).](#132-describe-the-process-of-scaling-a-kubernetes-deployment-using-the-horizontal-pod-autoscaler-hpa)
-- [133. What are some common causes of a Kubernetes Pod being stuck in a "Pending" state?](#133-what-are-some-common-causes-of-a-kubernetes-pod-being-stuck-in-a-pending-state)
-- [134. Explain the purpose and use cases for Kubernetes PodDisruptionBudgets (PDBs).](#134-explain-the-purpose-and-use-cases-for-kubernetes-poddisruptionbudgets-pdbs)
-- [135. How do you configure a Pod to restart automatically if it exits with an error in Kubernetes?](#135-how-do-you-configure-a-pod-to-restart-automatically-if-it-exits-with-an-error-in-kubernetes)
-- [136.  What is a Kubernetes Job, and provide an example use case.](#136--what-is-a-kubernetes-job-and-provide-an-example-use-case)
-- [137.  Explain the concept of a Kubernetes CronJob and provide an example of its scheduling syntax.](#137--explain-the-concept-of-a-kubernetes-cronjob-and-provide-an-example-of-its-scheduling-syntax)
-- [138. How do you configure a Liveness probe that checks the TCP socket connection of a container in a Pod?](#138-how-do-you-configure-a-liveness-probe-that-checks-the-tcp-socket-connection-of-a-container-in-a-pod)
-- [139.  What are some advantages of using a managed Kubernetes service compared to self-managed Kubernetes?](#139--what-are-some-advantages-of-using-a-managed-kubernetes-service-compared-to-self-managed-kubernetes)
-- [140. How do you configure a Kubernetes Pod to use a specific ServiceAccount?](#140-how-do-you-configure-a-kubernetes-pod-to-use-a-specific-serviceaccount)
-- [141.  Explain the concept of Kubernetes resource requests and how they affect Pod scheduling.](#141--explain-the-concept-of-kubernetes-resource-requests-and-how-they-affect-pod-scheduling)
-- [142.  What is the difference between `kubectl apply` and `kubectl create` commands?](#142--what-is-the-difference-between-kubectl-apply-and-kubectl-create-commands)
-- [143.  How do you implement a "leader election" pattern for Pods in Kubernetes?](#143--how-do-you-implement-a-leader-election-pattern-for-pods-in-kubernetes)
-- [144. Explain the purpose and functionality of the Kubernetes API aggregation layer.](#144-explain-the-purpose-and-functionality-of-the-kubernetes-api-aggregation-layer)
-- [145. How do you configure a Kubernetes Deployment to roll back to a previous revision if a new update fails?](#145-how-do-you-configure-a-kubernetes-deployment-to-roll-back-to-a-previous-revision-if-a-new-update-fails)
-- [146.  What is the purpose of Kubernetes namespaces from a security perspective?](#146--what-is-the-purpose-of-kubernetes-namespaces-from-a-security-perspective)
-- [147. How do you troubleshoot a Kubernetes Pod that is stuck in an "ImagePullBackOff" state?](#147-how-do-you-troubleshoot-a-kubernetes-pod-that-is-stuck-in-an-imagepullbackoff-state)
-- [148. Explain the purpose and functionality of Kubernetes Admission Webhooks.](#148-explain-the-purpose-and-functionality-of-kubernetes-admission-webhooks)
-- [149.  How do you configure a Pod to be scheduled on a node with a specific label in Kubernetes?](#149--how-do-you-configure-a-pod-to-be-scheduled-on-a-node-with-a-specific-label-in-kubernetes)
-- [150. What are some best practices for managing Kubernetes YAML configuration files?](#150-what-are-some-best-practices-for-managing-kubernetes-yaml-configuration-files)
+- [68.  Explain the difference between `kubectl exec` and `kubectl logs` commands.](#68--explain-the-difference-between-kubectl-exec-and-kubectl-logs-commands)
+- [69.  How do you configure a Pod to use a specific Docker image from a private registry?](#69--how-do-you-configure-a-pod-to-use-a-specific-docker-image-from-a-private-registry)
+- [70.  What is a Kubernetes Ingress resource, and how does it differ from a Service?](#70--what-is-a-kubernetes-ingress-resource-and-how-does-it-differ-from-a-service)
+- [71. Explain the concept of a Kubernetes Deployment rollout strategy.](#71-explain-the-concept-of-a-kubernetes-deployment-rollout-strategy)
+- [72. How do you troubleshoot container image pull limits in a Kubernetes cluster?](#72-how-do-you-troubleshoot-container-image-pull-limits-in-a-kubernetes-cluster)
+- [73.  Describe the purpose and use cases for Kubernetes annotations.](#73--describe-the-purpose-and-use-cases-for-kubernetes-annotations)
+- [74. Explain the difference between a stable, beta, and alpha API version in Kubernetes.](#74-explain-the-difference-between-a-stable-beta-and-alpha-api-version-in-kubernetes)
+- [75. How do you configure a Kubernetes Pod to run on a specific node?](#75-how-do-you-configure-a-kubernetes-pod-to-run-on-a-specific-node)
+- [76.  What is a Kubernetes Headless Service, and when would you use it?](#76--what-is-a-kubernetes-headless-service-and-when-would-you-use-it)
+- [77.  Describe the process of setting up a private Docker registry within a Kubernetes cluster.](#77--describe-the-process-of-setting-up-a-private-docker-registry-within-a-kubernetes-cluster)
+- [78. What is a Kubernetes NetworkPolicy, and how does it enhance cluster security?](#78-what-is-a-kubernetes-networkpolicy-and-how-does-it-enhance-cluster-security)
+- [79. Explain the concept of a Kubernetes ServiceAccount token, and describe its security implications.](#79-explain-the-concept-of-a-kubernetes-serviceaccount-token-and-describe-its-security-implications)
+- [80. How do you configure a Pod to use a pre-existing persistent volume claim?](#80-how-do-you-configure-a-pod-to-use-a-pre-existing-persistent-volume-claim)
+- [81. What is the difference between `kubectl port-forward` and `kubectl proxy`?](#81-what-is-the-difference-between-kubectl-port-forward-and-kubectl-proxy)
+- [82.  How do you configure a Service to expose a Deployment on a specific port range?](#82--how-do-you-configure-a-service-to-expose-a-deployment-on-a-specific-port-range)
+- [83. Explain the concept of a Kubernetes namespace and its relation to RBAC.](#83-explain-the-concept-of-a-kubernetes-namespace-and-its-relation-to-rbac)
+- [84. How do you configure a Kubernetes deployment to perform automated rollouts during container image updates?](#84-how-do-you-configure-a-kubernetes-deployment-to-perform-automated-rollouts-during-container-image-updates)
+- [85. What are some common troubleshooting steps for a Kubernetes Pod that is stuck in a "CrashLoopBackOff" state?](#85-what-are-some-common-troubleshooting-steps-for-a-kubernetes-pod-that-is-stuck-in-a-crashloopbackoff-state)
+- [86. Explain the concept of a Kubernetes PersistentVolume (PV) and its lifecycle.](#86-explain-the-concept-of-a-kubernetes-persistentvolume-pv-and-its-lifecycle)
+- [87. How do you implement role-based access control (RBAC) for users in a Kubernetes cluster?](#87-how-do-you-implement-role-based-access-control-rbac-for-users-in-a-kubernetes-cluster)
+- [88. Describe the purpose and benefits of using a Kubernetes ServiceMesh.](#88-describe-the-purpose-and-benefits-of-using-a-kubernetes-servicemesh)
+- [89. How do you configure a Kubernetes Deployment to use a specific container image pull policy?](#89-how-do-you-configure-a-kubernetes-deployment-to-use-a-specific-container-image-pull-policy)
+- [90. Explain the purpose and functionality of the Kubernetes scheduler.](#90-explain-the-purpose-and-functionality-of-the-kubernetes-scheduler)
+- [91. What are some common causes of resource contention in a Kubernetes cluster, and how do you mitigate them?](#91-what-are-some-common-causes-of-resource-contention-in-a-kubernetes-cluster-and-how-do-you-mitigate-them)
+- [92. Describe the purpose and use cases for Kubernetes taints and tolerations.](#92-describe-the-purpose-and-use-cases-for-kubernetes-taints-and-tolerations)
+- [93. How do you configure a Pod to use a specific DNS server in Kubernetes?](#93-how-do-you-configure-a-pod-to-use-a-specific-dns-server-in-kubernetes)
+- [94. What are some security best practices for container images used in Kubernetes?](#94-what-are-some-security-best-practices-for-container-images-used-in-kubernetes)
+- [95. Explain the difference between a deployment update and a deployment rollout in Kubernetes.](#95-explain-the-difference-between-a-deployment-update-and-a-deployment-rollout-in-kubernetes)
+- [96. How do you monitor the events happening within a Kubernetes cluster?](#96-how-do-you-monitor-the-events-happening-within-a-kubernetes-cluster)
+- [97. What are some common strategies for implementing disaster recovery in a Kubernetes environment?](#97-what-are-some-common-strategies-for-implementing-disaster-recovery-in-a-kubernetes-environment)
+- [98. How do you configure a Service to distribute traffic evenly across Pods using a different algorithm than the default?](#98-how-do-you-configure-a-service-to-distribute-traffic-evenly-across-pods-using-a-different-algorithm-than-the-default)
+- [99. Explain the purpose and use cases for Kubernetes Resource Limits.](#99-explain-the-purpose-and-use-cases-for-kubernetes-resource-limits)
+- [100. What are the different ways to access the Kubernetes API from outside the cluster?](#100-what-are-the-different-ways-to-access-the-kubernetes-api-from-outside-the-cluster)
+- [101.  Describe the process of creating and using a Kubernetes StorageClass.](#101--describe-the-process-of-creating-and-using-a-kubernetes-storageclass)
+- [102. Explain the concept of "Quality of Service" (QoS) classes for Pods in Kubernetes.](#102-explain-the-concept-of-quality-of-service-qos-classes-for-pods-in-kubernetes)
+- [103. How do you configure a Pod to run as a non-root user for security purposes?](#103-how-do-you-configure-a-pod-to-run-as-a-non-root-user-for-security-purposes)
+- [104. What are the key differences between a StatefulSet and a Deployment in Kubernetes?](#104-what-are-the-key-differences-between-a-statefulset-and-a-deployment-in-kubernetes)
+- [105. Explain the purpose and functionality of a Kubernetes EndpointSlice.](#105-explain-the-purpose-and-functionality-of-a-kubernetes-endpointslice)
+- [106. How do you configure a Pod to use a specific network interface on the node?](#106-how-do-you-configure-a-pod-to-use-a-specific-network-interface-on-the-node)
+- [107.  What is a Kubernetes Admission Controller, and describe its role in cluster security.](#107--what-is-a-kubernetes-admission-controller-and-describe-its-role-in-cluster-security)
+- [108. How do you configure a Kubernetes Service to use a specific external IP address?](#108-how-do-you-configure-a-kubernetes-service-to-use-a-specific-external-ip-address)
+- [109. Explain the concept of "affinity" in Kubernetes scheduling and its different types.](#109-explain-the-concept-of-affinity-in-kubernetes-scheduling-and-its-different-types)
+- [110. How do you perform a rolling update of a Kubernetes Deployment using a canary deployment strategy?](#110-how-do-you-perform-a-rolling-update-of-a-kubernetes-deployment-using-a-canary-deployment-strategy)
+- [111. What are some key considerations when designing a multi-tenant Kubernetes cluster?](#111-what-are-some-key-considerations-when-designing-a-multi-tenant-kubernetes-cluster)
+- [112. Describe the purpose and functionality of the Kubernetes Container Runtime Interface (CRI).](#112-describe-the-purpose-and-functionality-of-the-kubernetes-container-runtime-interface-cri)
+- [113.  How do you configure a Kubernetes Pod to use a custom hostname without modifying the container image?](#113--how-do-you-configure-a-kubernetes-pod-to-use-a-custom-hostname-without-modifying-the-container-image)
+- [114. What are some strategies for implementing zero-downtime deployments in Kubernetes?](#114-what-are-some-strategies-for-implementing-zero-downtime-deployments-in-kubernetes)
+- [115. Explain the purpose and functionality of a Kubernetes Custom Resource Definition (CRD) controller.](#115-explain-the-purpose-and-functionality-of-a-kubernetes-custom-resource-definition-crd-controller)
+- [116.  How do you configure a Kubernetes Service to route traffic based on HTTP headers?](#116--how-do-you-configure-a-kubernetes-service-to-route-traffic-based-on-http-headers)
+- [117. How do you troubleshoot a Kubernetes Service that is not routing traffic to its backend Pods?](#117-how-do-you-troubleshoot-a-kubernetes-service-that-is-not-routing-traffic-to-its-backend-pods)
+- [118. Describe the purpose and benefits of using a Kubernetes Ingress Controller.](#118-describe-the-purpose-and-benefits-of-using-a-kubernetes-ingress-controller)
+- [119. Explain the concept of a Kubernetes container lifecycle hook and its different phases.](#119-explain-the-concept-of-a-kubernetes-container-lifecycle-hook-and-its-different-phases)
+- [120.  How do you configure resource requests and limits for init containers in Kubernetes?](#120--how-do-you-configure-resource-requests-and-limits-for-init-containers-in-kubernetes)
+- [121.  What are the different ways to pass environment variables to containers in Kubernetes?](#121--what-are-the-different-ways-to-pass-environment-variables-to-containers-in-kubernetes)
+- [122.  Explain the purpose and functionality of Kubernetes kube-proxy.](#122--explain-the-purpose-and-functionality-of-kubernetes-kube-proxy)
+- [123.  What are some strategies for implementing a blue/green deployment using an Ingress Controller?](#123--what-are-some-strategies-for-implementing-a-bluegreen-deployment-using-an-ingress-controller)
+- [124.  How do you configure a Pod to have access to the host's file system in Kubernetes?](#124--how-do-you-configure-a-pod-to-have-access-to-the-hosts-file-system-in-kubernetes)
+- [125.  How do you configure a Pod to use a specific DNS policy in Kubernetes?](#125--how-do-you-configure-a-pod-to-use-a-specific-dns-policy-in-kubernetes)
+- [126. What are some strategies for securing secrets at rest in Kubernetes?](#126-what-are-some-strategies-for-securing-secrets-at-rest-in-kubernetes)
+- [127. Describe the process of scaling a Kubernetes Deployment using the Horizontal Pod Autoscaler (HPA).](#127-describe-the-process-of-scaling-a-kubernetes-deployment-using-the-horizontal-pod-autoscaler-hpa)
+- [128. What are some common causes of a Kubernetes Pod being stuck in a "Pending" state?](#128-what-are-some-common-causes-of-a-kubernetes-pod-being-stuck-in-a-pending-state)
+- [129. How do you configure a Pod to restart automatically if it exits with an error in Kubernetes?](#129-how-do-you-configure-a-pod-to-restart-automatically-if-it-exits-with-an-error-in-kubernetes)
+- [130.  Explain the concept of a Kubernetes CronJob and provide an example of its scheduling syntax.](#130--explain-the-concept-of-a-kubernetes-cronjob-and-provide-an-example-of-its-scheduling-syntax)
+- [131. How do you configure a Liveness probe that checks the TCP socket connection of a container in a Pod?](#131-how-do-you-configure-a-liveness-probe-that-checks-the-tcp-socket-connection-of-a-container-in-a-pod)
+- [132.  What are some advantages of using a managed Kubernetes service compared to self-managed Kubernetes?](#132--what-are-some-advantages-of-using-a-managed-kubernetes-service-compared-to-self-managed-kubernetes)
+- [133.  Explain the concept of Kubernetes resource requests and how they affect Pod scheduling.](#133--explain-the-concept-of-kubernetes-resource-requests-and-how-they-affect-pod-scheduling)
+- [134.  What is the difference between `kubectl apply` and `kubectl create` commands?](#134--what-is-the-difference-between-kubectl-apply-and-kubectl-create-commands)
+- [135.  How do you implement a "leader election" pattern for Pods in Kubernetes?](#135--how-do-you-implement-a-leader-election-pattern-for-pods-in-kubernetes)
+- [136. Explain the purpose and functionality of the Kubernetes API aggregation layer.](#136-explain-the-purpose-and-functionality-of-the-kubernetes-api-aggregation-layer)
+- [137. How do you configure a Kubernetes Deployment to roll back to a previous revision if a new update fails?](#137-how-do-you-configure-a-kubernetes-deployment-to-roll-back-to-a-previous-revision-if-a-new-update-fails)
+- [138.  What is the purpose of Kubernetes namespaces from a security perspective?](#138--what-is-the-purpose-of-kubernetes-namespaces-from-a-security-perspective)
+- [139. How do you troubleshoot a Kubernetes Pod that is stuck in an "ImagePullBackOff" state?](#139-how-do-you-troubleshoot-a-kubernetes-pod-that-is-stuck-in-an-imagepullbackoff-state)
+- [140. Explain the purpose and functionality of Kubernetes Admission Webhooks.](#140-explain-the-purpose-and-functionality-of-kubernetes-admission-webhooks)
+- [141.  How do you configure a Pod to be scheduled on a node with a specific label in Kubernetes?](#141--how-do-you-configure-a-pod-to-be-scheduled-on-a-node-with-a-specific-label-in-kubernetes)
+- [142. What are some best practices for managing Kubernetes YAML configuration files?](#142-what-are-some-best-practices-for-managing-kubernetes-yaml-configuration-files)
 - [License](#license)
 
 ## Questions and Answers
@@ -1417,30 +1409,7 @@ spec:
 
 **Explanation:**  A failing liveness probe restarts the container, while a failing readiness probe only removes the Pod from Service endpoints. Use a startup probe to hold off liveness checks during slow starts.
 
-### 68. What is a Kubernetes Namespace, and how does it relate to resource isolation?
-
-**Answer:**
-
-**Namespace as a Logical Boundary:**
-
-- A Namespace acts as a virtual cluster within your Kubernetes cluster, providing logical isolation between different projects, teams, or environments.
-
-**Resource Isolation:**
-
-- Namespaces isolate:
-  - **Resources:** Pods, Services, Deployments, and other objects are scoped within a Namespace, preventing naming conflicts.
-  - **RBAC Policies:**  Permissions can be granted at the Namespace level, controlling access to resources.
-  - **Resource Quotas:**  You can set limits on resource consumption (CPU, memory, storage) for each Namespace.
-
-**Example:**
-
-You could have separate Namespaces for "development," "testing," and "production" to isolate their environments and resources.
-
-**Documentation:** [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
-
-**Explanation:**  Namespaces do not isolate network traffic by default; use NetworkPolicy for that. Nodes, PersistentVolumes, and other cluster-scoped objects do not belong to any Namespace.
-
-### 69.  Explain the difference between `kubectl exec` and `kubectl logs` commands.
+### 68.  Explain the difference between `kubectl exec` and `kubectl logs` commands.
 
 **Answer:**
 
@@ -1469,7 +1438,7 @@ kubectl logs my-pod -c my-container
 - `kubectl exec`: [https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#exec](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#exec)
 - `kubectl logs`:  [https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#logs](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#logs)
 
-### 70.  How do you configure a Pod to use a specific Docker image from a private registry?
+### 69.  How do you configure a Pod to use a specific Docker image from a private registry?
 
 **Answer:**
 
@@ -1504,7 +1473,7 @@ kubectl logs my-pod -c my-container
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
-### 71.  What is a Kubernetes Ingress resource, and how does it differ from a Service?
+### 70.  What is a Kubernetes Ingress resource, and how does it differ from a Service?
 
 **Answer:**
 
@@ -1525,7 +1494,7 @@ kubectl logs my-pod -c my-container
 - Service: [https://kubernetes.io/docs/concepts/services-networking/service/](https://kubernetes.io/docs/concepts/services-networking/service/)
 - Ingress: [https://kubernetes.io/docs/concepts/services-networking/ingress/](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 
-### 72. Explain the concept of a Kubernetes Deployment rollout strategy.
+### 71. Explain the concept of a Kubernetes Deployment rollout strategy.
 
 **Answer:**
 
@@ -1549,7 +1518,7 @@ kubectl logs my-pod -c my-container
 
 **Explanation:** Recreate is the only built-in strategy with downtime. Choose it only when old and new versions cannot run side by side.
 
-### 73. How do you troubleshoot container image pull limits in a Kubernetes cluster?
+### 72. How do you troubleshoot container image pull limits in a Kubernetes cluster?
 
 **Answer:**
 
@@ -1566,7 +1535,7 @@ kubectl logs my-pod -c my-container
 
 **Explanation:**  Most pull failures come from credentials, registry throttling, or network access, not from Kubernetes quotas.
 
-### 74.  Describe the purpose and use cases for Kubernetes annotations.
+### 73.  Describe the purpose and use cases for Kubernetes annotations.
 
 **Answer:**
 
@@ -1587,30 +1556,7 @@ kubectl logs my-pod -c my-container
 
 **Explanation:**  Unlike labels (which are used for selection), annotations provide a flexible way to attach metadata for various purposes without affecting object behavior.
 
-### 75.  What is a Kubernetes Custom Resource Definition (CRD), and provide an example use case.
-
-**Answer:**
-
-**Custom Resource Definitions (CRDs):**
-
-- Extend the Kubernetes API by defining your own custom objects.
-- Allow you to manage resources beyond built-in Kubernetes objects.
-
-**Use Case Example:**
-
-- **Managing Certificates:**
-  - Create a CRD called "Certificate" to represent SSL/TLS certificates in your cluster.
-  - Define a controller that automatically requests, renews, and distributes certificates based on the CRD specifications.
-
-**Benefits:**
-
-- **Abstraction:**  Hide complexity and provide a simpler way to manage custom resources.
-- **Reusability:**  Define custom resources once and use them across multiple applications or deployments.
-- **Kubernetes-Native Management:** Manage your custom resources using familiar Kubernetes tools like `kubectl`.
-
-**Documentation:** [https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)
-
-### 76. Explain the difference between a stable, beta, and alpha API version in Kubernetes.
+### 74. Explain the difference between a stable, beta, and alpha API version in Kubernetes.
 
 **Answer:**
 
@@ -1626,7 +1572,7 @@ kubectl logs my-pod -c my-container
 
 **Explanation:** Check the stability level before relying on an API version, since beta and alpha changes can break manifests after an upgrade.
 
-### 77. How do you configure a Kubernetes Pod to run on a specific node?
+### 75. How do you configure a Kubernetes Pod to run on a specific node?
 
 **Answer:**
 
@@ -1673,7 +1619,7 @@ spec:
 
 **Explanation:**  Both mechanisms allow you to constrain which nodes a Pod can be scheduled on, but Node Affinity offers more advanced matching options.
 
-### 78.  What is a Kubernetes Headless Service, and when would you use it?
+### 76.  What is a Kubernetes Headless Service, and when would you use it?
 
 **Answer:**
 
@@ -1705,7 +1651,7 @@ spec:
 
 **Explanation:** Headless Services are useful for scenarios where you need more control over networking or when you don't need traditional Service load balancing.
 
-### 79.  Describe the process of setting up a private Docker registry within a Kubernetes cluster.
+### 77.  Describe the process of setting up a private Docker registry within a Kubernetes cluster.
 
 **Answer:**
 
@@ -1723,7 +1669,7 @@ spec:
 
 **Explanation:**  Running your own registry within Kubernetes gives you more control over image storage and access.
 
-### 80. What is a Kubernetes NetworkPolicy, and how does it enhance cluster security?
+### 78. What is a Kubernetes NetworkPolicy, and how does it enhance cluster security?
 
 **Answer:**
 
@@ -1743,7 +1689,7 @@ spec:
 
 **Explanation:**  NetworkPolicies take effect only if the cluster's network plugin enforces them (for example, Calico or Cilium). A Pod that no policy selects accepts all traffic.
 
-### 81. Explain the concept of a Kubernetes ServiceAccount token, and describe its security implications.
+### 79. Explain the concept of a Kubernetes ServiceAccount token, and describe its security implications.
 
 **Answer:**
 
@@ -1764,7 +1710,7 @@ spec:
 
 **Explanation:** ServiceAccount tokens are essential for Pod authentication but require careful management to maintain cluster security.
 
-### 82. How do you configure a Pod to use a pre-existing persistent volume claim?
+### 80. How do you configure a Pod to use a pre-existing persistent volume claim?
 
 **Answer:**
 
@@ -1798,7 +1744,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/storage/persistent-volumes/](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
 
-### 83. What is the difference between `kubectl port-forward` and `kubectl proxy`?
+### 81. What is the difference between `kubectl port-forward` and `kubectl proxy`?
 
 **Answer:**
 
@@ -1813,7 +1759,7 @@ spec:
 - `kubectl port-forward`: [https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/)
 - `kubectl proxy`: [https://kubernetes.io/docs/reference/kubectl/generated/kubectl_proxy/](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_proxy/)
 
-### 84.  How do you configure a Service to expose a Deployment on a specific port range?
+### 82.  How do you configure a Service to expose a Deployment on a specific port range?
 
 **Answer:**
 
@@ -1848,7 +1794,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/service/](https://kubernetes.io/docs/concepts/services-networking/service/)
 
-### 85. Explain the concept of a Kubernetes namespace and its relation to RBAC.
+### 83. Explain the concept of a Kubernetes namespace and its relation to RBAC.
 
 **Answer:**
 
@@ -1873,7 +1819,7 @@ spec:
 - Namespaces: [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
 - RBAC: [https://kubernetes.io/docs/reference/access-authn-authz/rbac/](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
 
-### 86. How do you configure a Kubernetes deployment to perform automated rollouts during container image updates?
+### 84. How do you configure a Kubernetes deployment to perform automated rollouts during container image updates?
 
 **Answer:**
 
@@ -1923,7 +1869,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment)
 
-### 87. What are some common troubleshooting steps for a Kubernetes Pod that is stuck in a "CrashLoopBackOff" state?
+### 85. What are some common troubleshooting steps for a Kubernetes Pod that is stuck in a "CrashLoopBackOff" state?
 
 **Answer:**
 
@@ -1962,7 +1908,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/)
 
-### 88. Explain the concept of a Kubernetes PersistentVolume (PV) and its lifecycle.
+### 86. Explain the concept of a Kubernetes PersistentVolume (PV) and its lifecycle.
 
 **Answer:**
 
@@ -1981,7 +1927,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/storage/persistent-volumes/](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
 
-### 89. How do you implement role-based access control (RBAC) for users in a Kubernetes cluster?
+### 87. How do you implement role-based access control (RBAC) for users in a Kubernetes cluster?
 
 **Answer:**
 
@@ -2028,7 +1974,7 @@ roleRef:
 
 **Documentation:** [https://kubernetes.io/docs/reference/access-authn-authz/rbac/](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
 
-### 90. Describe the purpose and benefits of using a Kubernetes ServiceMesh.
+### 88. Describe the purpose and benefits of using a Kubernetes ServiceMesh.
 
 **Answer:**
 
@@ -2054,7 +2000,7 @@ roleRef:
 
 **Explanation:**  A mesh moves networking logic such as mTLS and retries out of application code, so the same policies apply to every service.
 
-### 91. How do you configure a Kubernetes Deployment to use a specific container image pull policy?
+### 89. How do you configure a Kubernetes Deployment to use a specific container image pull policy?
 
 **Answer:**
 
@@ -2091,7 +2037,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/containers/images/#updating-images](https://kubernetes.io/docs/concepts/containers/images/#updating-images)
 
-### 92. Explain the purpose and functionality of the Kubernetes scheduler.
+### 90. Explain the purpose and functionality of the Kubernetes scheduler.
 
 **Answer:**
 
@@ -2111,7 +2057,7 @@ spec:
 
 **Explanation:** Placement is based on Pod resource requests, not live usage, so accurate `requests` values matter.
 
-### 93. What are some common causes of resource contention in a Kubernetes cluster, and how do you mitigate them?
+### 91. What are some common causes of resource contention in a Kubernetes cluster, and how do you mitigate them?
 
 **Answer:**
 
@@ -2136,7 +2082,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) (and related pages on Resource Quotas, QoS)
 
-### 94. Describe the purpose and use cases for Kubernetes taints and tolerations.
+### 92. Describe the purpose and use cases for Kubernetes taints and tolerations.
 
 **Answer:**
 
@@ -2180,7 +2126,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
 
-### 95. How do you configure a Pod to use a specific DNS server in Kubernetes?
+### 93. How do you configure a Pod to use a specific DNS server in Kubernetes?
 
 **Answer:**
 
@@ -2220,7 +2166,7 @@ To keep cluster DNS and only add nameservers or search domains, use `dnsPolicy: 
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
 
-### 96. What are some security best practices for container images used in Kubernetes?
+### 94. What are some security best practices for container images used in Kubernetes?
 
 **Answer:**
 
@@ -2237,7 +2183,7 @@ To keep cluster DNS and only add nameservers or search domains, use `dnsPolicy: 
 
 **Documentation:** [https://kubernetes.io/docs/concepts/security/](https://kubernetes.io/docs/concepts/security/)
 
-### 97. Explain the difference between a deployment update and a deployment rollout in Kubernetes.
+### 95. Explain the difference between a deployment update and a deployment rollout in Kubernetes.
 
 **Answer:**
 
@@ -2261,7 +2207,7 @@ To keep cluster DNS and only add nameservers or search domains, use `dnsPolicy: 
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 
-### 98. How do you monitor the events happening within a Kubernetes cluster?
+### 96. How do you monitor the events happening within a Kubernetes cluster?
 
 **Answer:**
 
@@ -2293,7 +2239,7 @@ To keep cluster DNS and only add nameservers or search domains, use `dnsPolicy: 
 
 **Explanation:**  Events are short-lived and informational, so use them alongside metrics and logs rather than as a replacement.
 
-### 99. What are some common strategies for implementing disaster recovery in a Kubernetes environment?
+### 97. What are some common strategies for implementing disaster recovery in a Kubernetes environment?
 
 **Answer:**
 
@@ -2316,7 +2262,7 @@ To keep cluster DNS and only add nameservers or search domains, use `dnsPolicy: 
 
 **Documentation:** [Backing up an etcd cluster](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/). Cloud provider disaster recovery documentation is also relevant.
 
-### 100. How do you configure a Service to distribute traffic evenly across Pods using a different algorithm than the default?
+### 98. How do you configure a Service to distribute traffic evenly across Pods using a different algorithm than the default?
 
 **Answer:**
 
@@ -2347,7 +2293,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/service/](https://kubernetes.io/docs/concepts/services-networking/service/)
 
-### 101. Explain the purpose and use cases for Kubernetes Resource Limits.
+### 99. Explain the purpose and use cases for Kubernetes Resource Limits.
 
 **Answer:**
 
@@ -2382,7 +2328,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
 
-### 102. What are the different ways to access the Kubernetes API from outside the cluster?
+### 100. What are the different ways to access the Kubernetes API from outside the cluster?
 
 **Answer:**
 
@@ -2401,7 +2347,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/reference/kubernetes-api/](https://kubernetes.io/docs/reference/kubernetes-api/)
 
-### 103.  Describe the process of creating and using a Kubernetes StorageClass.
+### 101.  Describe the process of creating and using a Kubernetes StorageClass.
 
 **Answer:**
 
@@ -2444,7 +2390,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/storage/storage-classes/](https://kubernetes.io/docs/concepts/storage/storage-classes/)
 
-### 104. Explain the concept of "Quality of Service" (QoS) classes for Pods in Kubernetes.
+### 102. Explain the concept of "Quality of Service" (QoS) classes for Pods in Kubernetes.
 
 **Answer:**
 
@@ -2470,7 +2416,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#quality-of-service-classes](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#quality-of-service-classes)
 
-### 105. How do you configure a Pod to run as a non-root user for security purposes?
+### 103. How do you configure a Pod to run as a non-root user for security purposes?
 
 **Answer:**
 
@@ -2499,7 +2445,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/security-context/](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/)
 
-### 106. What are the key differences between a StatefulSet and a Deployment in Kubernetes?
+### 104. What are the key differences between a StatefulSet and a Deployment in Kubernetes?
 
 **Answer:**
 
@@ -2516,7 +2462,7 @@ spec:
 - StatefulSet: [https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/)
 - Deployment: [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 
-### 107. Explain the purpose and functionality of a Kubernetes EndpointSlice.
+### 105. Explain the purpose and functionality of a Kubernetes EndpointSlice.
 
 **Answer:**
 
@@ -2537,7 +2483,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/](https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/)
 
-### 108. How do you configure a Pod to use a specific network interface on the node?
+### 106. How do you configure a Pod to use a specific network interface on the node?
 
 **Answer:**
 
@@ -2576,7 +2522,7 @@ spec:
 - Host Networking: [https://kubernetes.io/docs/concepts/security/pod-security-standards/](https://kubernetes.io/docs/concepts/security/pod-security-standards/)
 - Multus CNI: [https://github.com/k8snetworkplumbingwg/multus-cni](https://github.com/k8snetworkplumbingwg/multus-cni)
 
-### 109.  What is a Kubernetes Admission Controller, and describe its role in cluster security.
+### 107.  What is a Kubernetes Admission Controller, and describe its role in cluster security.
 
 **Answer:**
 
@@ -2605,7 +2551,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
 
-### 110. How do you configure a Kubernetes Service to use a specific external IP address?
+### 108. How do you configure a Kubernetes Service to use a specific external IP address?
 
 **Answer:**
 
@@ -2638,7 +2584,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
 
-### 111. Explain the concept of "affinity" in Kubernetes scheduling and its different types.
+### 109. Explain the concept of "affinity" in Kubernetes scheduling and its different types.
 
 **Answer:**
 
@@ -2658,7 +2604,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity)
 
-### 112. How do you perform a rolling update of a Kubernetes Deployment using a canary deployment strategy?
+### 110. How do you perform a rolling update of a Kubernetes Deployment using a canary deployment strategy?
 
 **Answer:**
 
@@ -2676,7 +2622,7 @@ spec:
 
 **Note:** Core Kubernetes has no built-in canary feature, and replica-based canaries cannot target exact traffic percentages. For weighted traffic, use a service mesh, Gateway API weighted backends, or a progressive delivery controller such as Argo Rollouts or Flagger.
 
-### 113. What are some key considerations when designing a multi-tenant Kubernetes cluster?
+### 111. What are some key considerations when designing a multi-tenant Kubernetes cluster?
 
 **Answer:**
 
@@ -2705,7 +2651,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/security/multi-tenancy/](https://kubernetes.io/docs/concepts/security/multi-tenancy/)
 
-### 114. Describe the purpose and functionality of the Kubernetes Container Runtime Interface (CRI).
+### 112. Describe the purpose and functionality of the Kubernetes Container Runtime Interface (CRI).
 
 **Answer:**
 
@@ -2729,7 +2675,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/architecture/cri/](https://kubernetes.io/docs/concepts/architecture/cri/)
 
-### 115.  How do you configure a Kubernetes Pod to use a custom hostname without modifying the container image?
+### 113.  How do you configure a Kubernetes Pod to use a custom hostname without modifying the container image?
 
 **Answer:**
 
@@ -2757,7 +2703,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
 
-### 116. What are some strategies for implementing zero-downtime deployments in Kubernetes?
+### 114. What are some strategies for implementing zero-downtime deployments in Kubernetes?
 
 **Answer:**
 
@@ -2785,7 +2731,7 @@ spec:
 
 **Documentation:** While Kubernetes doesn't have a single "zero-downtime deployment" feature, its documentation covers the concepts and techniques needed to achieve zero downtime through strategies like RollingUpdates, Services, and Ingress.
 
-### 117. Explain the purpose and functionality of a Kubernetes Custom Resource Definition (CRD) controller.
+### 115. Explain the purpose and functionality of a Kubernetes Custom Resource Definition (CRD) controller.
 
 **Answer:**
 
@@ -2806,7 +2752,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)
 
-### 118.  How do you configure a Kubernetes Service to route traffic based on HTTP headers?
+### 116.  How do you configure a Kubernetes Service to route traffic based on HTTP headers?
 
 **Answer:**
 
@@ -2847,35 +2793,7 @@ Requests with the header `X-Env: beta` go to `beta-service`; all other requests 
 - HTTPRoute: [https://gateway-api.sigs.k8s.io/api-types/httproute/](https://gateway-api.sigs.k8s.io/api-types/httproute/)
 - Ingress: [https://kubernetes.io/docs/concepts/services-networking/ingress/](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 
-### 119. Explain the concept of a Kubernetes "context" and how it's used for managing multiple clusters.
-
-**Answer:**
-
-**Kubernetes Context:**
-
-- A context in Kubernetes is a set of access parameters that define a cluster, a user, and a namespace.
-- It tells `kubectl` which cluster and namespace to interact with and which user credentials to use.
-
-**Managing Multiple Clusters:**
-
-- **Kubeconfig File:** Your kubeconfig file (usually `~/.kube/config`) can store multiple contexts.
-- **Switching Contexts:**  You can switch between contexts using the `kubectl config use-context <context-name>` command.
-
-**Example:**
-
-```bash
-# List available contexts
-kubectl config get-contexts
-
-# Switch to the "production" context
-kubectl config use-context production
-
-# Now any kubectl commands will target the "production" cluster
-```
-
-**Documentation:** [https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)
-
-### 120. How do you troubleshoot a Kubernetes Service that is not routing traffic to its backend Pods?
+### 117. How do you troubleshoot a Kubernetes Service that is not routing traffic to its backend Pods?
 
 **Answer:**
 
@@ -2907,7 +2825,7 @@ kubectl config use-context production
 
 **Documentation:** [https://kubernetes.io/docs/tasks/debug-application-cluster/debug-service/](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-service/)
 
-### 121. Describe the purpose and benefits of using a Kubernetes Ingress Controller.
+### 118. Describe the purpose and benefits of using a Kubernetes Ingress Controller.
 
 **Answer:**
 
@@ -2931,7 +2849,7 @@ kubectl config use-context production
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/ingress/](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 
-### 122. Explain the concept of a Kubernetes container lifecycle hook and its different phases.
+### 119. Explain the concept of a Kubernetes container lifecycle hook and its different phases.
 
 **Answer:**
 
@@ -2960,7 +2878,7 @@ kubectl config use-context production
 
 **Documentation:** [https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/)
 
-### 123.  How do you configure resource requests and limits for init containers in Kubernetes?
+### 120.  How do you configure resource requests and limits for init containers in Kubernetes?
 
 **Answer:**
 
@@ -2998,7 +2916,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/pods/init-containers/](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
 
-### 124.  What are the different ways to pass environment variables to containers in Kubernetes?
+### 121.  What are the different ways to pass environment variables to containers in Kubernetes?
 
 **Answer:**
 
@@ -3059,7 +2977,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/)
 
-### 125.  Explain the purpose and functionality of Kubernetes kube-proxy.
+### 122.  Explain the purpose and functionality of Kubernetes kube-proxy.
 
 **Answer:**
 
@@ -3083,7 +3001,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/service/#proxy-mode](https://kubernetes.io/docs/concepts/services-networking/service/#proxy-mode)
 
-### 126.  What are some strategies for implementing a blue/green deployment using an Ingress Controller?
+### 123.  What are some strategies for implementing a blue/green deployment using an Ingress Controller?
 
 **Answer:**
 
@@ -3152,7 +3070,7 @@ spec:
 - Ingress: [https://kubernetes.io/docs/concepts/services-networking/ingress/](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 - Nginx Ingress (retired in March 2026, example for annotations): [https://kubernetes.github.io/ingress-nginx/](https://kubernetes.github.io/ingress-nginx/)
 
-### 127.  How do you configure a Pod to have access to the host's file system in Kubernetes?
+### 124.  How do you configure a Pod to have access to the host's file system in Kubernetes?
 
 **Answer:**
 
@@ -3188,61 +3106,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/storage/volumes/#hostpath](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath)
 
-### 128.  What is a Kubernetes "headless" Service, and provide an example use case.
-
-**Answer:** (Repeated from Question 78, providing a different use case)
-
-**Headless Service:**
-
-- A Headless Service in Kubernetes is a Service with its `clusterIP` field set to `None`. It does not allocate a ClusterIP address for load balancing.
-
-**Use Case Example:**
-
-- **Dynamically Discovering Pods:**
-  - Create a Headless Service that targets a set of Pods.
-  - Each Pod in the StatefulSet will get a unique DNS record, allowing for direct access to specific Pods.
-
-**Example:**
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-headless-service
-spec:
-  clusterIP: None
-  selector:
-    app: my-app
-```
-
-**Documentation:** [https://kubernetes.io/docs/concepts/services-networking/service/#headless-services](https://kubernetes.io/docs/concepts/services-networking/service/#headless-services)
-
-### 129. Explain the purpose and functionality of Kubernetes NetworkPolicies.
-
-**Answer:** (Repeated from Question 80, providing additional details)
-
-**NetworkPolicies:**
-
-- Kubernetes NetworkPolicies provide a way to control network traffic at the Pod level, acting as firewalls within your cluster.
-
-**Purpose:**
-
-- **Microsegmentation:** Divide your cluster network into isolated segments to limit the impact of security incidents.
-- **Least Privilege:**  Enforce the principle of least privilege by allowing only necessary communication between Pods.
-- **Ingress/Egress Control:**  Specify rules for incoming (ingress) and outgoing (egress) traffic to and from Pods.
-
-**Functionality:**
-
-- **Policy Definition:**  You define NetworkPolicies as YAML resources, specifying rules based on:
-  - Pod selectors (labels)
-  - Namespaces
-  - IP addresses and ports
-- **Traffic Enforcement:**  NetworkPolicy rules are enforced by network plugins that support them (like Calico, Cilium, or Antrea). The API object does nothing on a plugin that ignores it.
-- **Default Deny:** You can implement a "default deny" policy, where no traffic is allowed unless explicitly permitted by a NetworkPolicy.
-
-**Documentation:** [https://kubernetes.io/docs/concepts/services-networking/network-policies/](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
-
-### 130.  How do you configure a Pod to use a specific DNS policy in Kubernetes?
+### 125.  How do you configure a Pod to use a specific DNS policy in Kubernetes?
 
 **Answer:**
 
@@ -3293,7 +3157,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
 
-### 131. What are some strategies for securing secrets at rest in Kubernetes?
+### 126. What are some strategies for securing secrets at rest in Kubernetes?
 
 **Answer:**
 
@@ -3308,7 +3172,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/secret/#best-practices](https://kubernetes.io/docs/concepts/configuration/secret/#best-practices)
 
-### 132. Describe the process of scaling a Kubernetes Deployment using the Horizontal Pod Autoscaler (HPA).
+### 127. Describe the process of scaling a Kubernetes Deployment using the Horizontal Pod Autoscaler (HPA).
 
 **Answer:**
 
@@ -3348,7 +3212,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
 
-### 133. What are some common causes of a Kubernetes Pod being stuck in a "Pending" state?
+### 128. What are some common causes of a Kubernetes Pod being stuck in a "Pending" state?
 
 **Answer:**
 
@@ -3375,23 +3239,7 @@ spec:
 - **`kubectl get events`:** Look for events related to the Pod or its resources.
 - **`kubectl get pvc`:** Check whether a PersistentVolumeClaim the Pod uses is stuck in `Pending`.
 
-### 134. Explain the purpose and use cases for Kubernetes PodDisruptionBudgets (PDBs).
-
-**Answer:** (Repeated from Question 59, providing additional examples)
-
-**PodDisruptionBudget (PDB):**
-
-- A PDB limits the number of Pods from a Deployment, ReplicaSet, or StatefulSet that can be disrupted simultaneously during voluntary disruptions (e.g., upgrades, node drains).
-
-**Use Cases and Examples:**
-
-- **Maintaining Quorum in a Database Cluster:**  Ensure that enough database instances are always running to maintain quorum and prevent data loss during updates or maintenance.
-- **Guaranteeing Minimum Availability for a Service:** Specify that a certain number of Pods for a critical service (e.g., a load balancer) must always be available.
-- **Controlling the Impact of Batch Jobs:** Limit the number of Pods from a batch processing job that can be disrupted, ensuring that processing continues even if some nodes are unavailable.
-
-**Documentation:** [https://kubernetes.io/docs/concepts/workloads/pods/disruptions/](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/)
-
-### 135. How do you configure a Pod to restart automatically if it exits with an error in Kubernetes?
+### 129. How do you configure a Pod to restart automatically if it exits with an error in Kubernetes?
 
 **Answer:**
 
@@ -3421,26 +3269,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy)
 
-### 136.  What is a Kubernetes Job, and provide an example use case.
-
-**Answer:** (Repeated from Question 18, providing a different example)
-
-**Kubernetes Job:**
-
-- A Job is a Kubernetes object used to run Pods that perform a specific task to completion.
-- Jobs are often used for batch processing, running scripts, or performing one-off tasks.
-
-**Use Case Example:**
-
-- **Image Processing:**
-  - You have a directory of images that need to be resized and converted to a different format.
-  - Create a Job that runs a Pod with image processing tools.
-  - The Pod processes the images and exits when finished.
-  - The Job tracks the progress and completion status of the Pod.
-
-**Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/job/](https://kubernetes.io/docs/concepts/workloads/controllers/job/)
-
-### 137.  Explain the concept of a Kubernetes CronJob and provide an example of its scheduling syntax.
+### 130.  Explain the concept of a Kubernetes CronJob and provide an example of its scheduling syntax.
 
 **Answer:**
 
@@ -3488,7 +3317,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)
 
-### 138. How do you configure a Liveness probe that checks the TCP socket connection of a container in a Pod?
+### 131. How do you configure a Liveness probe that checks the TCP socket connection of a container in a Pod?
 
 **Answer:**
 
@@ -3520,7 +3349,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#define-a-tcp-liveness-probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#define-a-tcp-liveness-probe)
 
-### 139.  What are some advantages of using a managed Kubernetes service compared to self-managed Kubernetes?
+### 132.  What are some advantages of using a managed Kubernetes service compared to self-managed Kubernetes?
 
 **Answer:**
 
@@ -3546,39 +3375,7 @@ spec:
 - Amazon Elastic Kubernetes Service (EKS)
 - Azure Kubernetes Service (AKS)
 
-### 140. How do you configure a Kubernetes Pod to use a specific ServiceAccount?
-
-**Answer:** (Repeated from Question 40, providing additional context)
-
-**Using a Specific ServiceAccount:**
-
-1. **Existing ServiceAccount:** Ensure that the ServiceAccount you want to use exists in the same namespace as the Pod.
-
-2. **Pod Definition:** In your Pod specification, set the `serviceAccountName` field to the name of the ServiceAccount.
-
-**Example:**
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: my-pod
-spec:
-  serviceAccountName: my-service-account
-  containers:
-  - name: my-container
-    image: my-image
-```
-
-**Importance of ServiceAccounts:**
-
-- **Pod Identity:** Provides an identity for Pods to authenticate with the Kubernetes API server. Since Kubernetes 1.24, the kubelet mounts a short-lived bound token through a projected volume; no long-lived token Secret is created automatically.
-- **Least Exposure:** Pods that never call the API can set `automountServiceAccountToken: false`.
-- **Access Control:**  Used in conjunction with RBAC to grant Pods specific permissions based on their associated ServiceAccount.
-
-**Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/)
-
-### 141.  Explain the concept of Kubernetes resource requests and how they affect Pod scheduling.
+### 133.  Explain the concept of Kubernetes resource requests and how they affect Pod scheduling.
 
 **Answer:**
 
@@ -3611,7 +3408,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container)
 
-### 142.  What is the difference between `kubectl apply` and `kubectl create` commands?
+### 134.  What is the difference between `kubectl apply` and `kubectl create` commands?
 
 **Answer:**
 
@@ -3630,7 +3427,7 @@ spec:
 - `kubectl create`: [https://kubernetes.io/docs/reference/kubectl/generated/](https://kubernetes.io/docs/reference/kubectl/generated/)
 - `kubectl apply`: [https://kubernetes.io/docs/reference/kubectl/generated/](https://kubernetes.io/docs/reference/kubectl/generated/)
 
-### 143.  How do you implement a "leader election" pattern for Pods in Kubernetes?
+### 135.  How do you implement a "leader election" pattern for Pods in Kubernetes?
 
 **Answer:**
 
@@ -3649,7 +3446,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/architecture/leases/#leader-election](https://kubernetes.io/docs/concepts/architecture/leases/#leader-election)
 
-### 144. Explain the purpose and functionality of the Kubernetes API aggregation layer.
+### 136. Explain the purpose and functionality of the Kubernetes API aggregation layer.
 
 **Answer:**
 
@@ -3671,7 +3468,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/)
 
-### 145. How do you configure a Kubernetes Deployment to roll back to a previous revision if a new update fails?
+### 137. How do you configure a Kubernetes Deployment to roll back to a previous revision if a new update fails?
 
 **Answer:**
 
@@ -3697,7 +3494,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rollback-and-rollout-history](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rollback-and-rollout-history)
 
-### 146.  What is the purpose of Kubernetes namespaces from a security perspective?
+### 138.  What is the purpose of Kubernetes namespaces from a security perspective?
 
 **Answer:**
 
@@ -3717,7 +3514,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) (and related documentation on RBAC and NetworkPolicies)
 
-### 147. How do you troubleshoot a Kubernetes Pod that is stuck in an "ImagePullBackOff" state?
+### 139. How do you troubleshoot a Kubernetes Pod that is stuck in an "ImagePullBackOff" state?
 
 **Answer:**
 
@@ -3742,7 +3539,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
-### 148. Explain the purpose and functionality of Kubernetes Admission Webhooks.
+### 140. Explain the purpose and functionality of Kubernetes Admission Webhooks.
 
 **Answer:**
 
@@ -3766,7 +3563,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#webhook](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#webhook)
 
-### 149.  How do you configure a Pod to be scheduled on a node with a specific label in Kubernetes?
+### 141.  How do you configure a Pod to be scheduled on a node with a specific label in Kubernetes?
 
 **Answer:**
 
@@ -3793,7 +3590,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector)
 
-### 150. What are some best practices for managing Kubernetes YAML configuration files?
+### 142. What are some best practices for managing Kubernetes YAML configuration files?
 
 **Answer:**
 
