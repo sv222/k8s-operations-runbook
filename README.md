@@ -2808,6 +2808,8 @@ You can route traffic based on HTTP headers using an **Ingress** resource with a
 
 **Example (Using Nginx Ingress):**
 
+> **Note:** The community Ingress NGINX project was retired in March 2026 and receives no further security fixes. For new setups, consider the [Gateway API](https://gateway-api.sigs.k8s.io/) or another maintained controller.
+
 1. **Create an Ingress Resource:**
 
    ```yaml
@@ -3086,6 +3088,8 @@ spec:
 
 **Example (Using Nginx Ingress and Annotations):**
 
+> **Note:** The community Ingress NGINX project was retired in March 2026 and receives no further security fixes. For new setups, consider the [Gateway API](https://gateway-api.sigs.k8s.io/) or another maintained controller.
+
 ```yaml
 # Blue Ingress (initially active)
 apiVersion: networking.k8s.io/v1
@@ -3109,7 +3113,7 @@ metadata:
 **Documentation:**
 
 - Ingress: [https://kubernetes.io/docs/concepts/services-networking/ingress/](https://kubernetes.io/docs/concepts/services-networking/ingress/)
-- Nginx Ingress (example for annotations): [https://kubernetes.github.io/ingress-nginx/](https://kubernetes.github.io/ingress-nginx/)
+- Nginx Ingress (retired in March 2026, example for annotations): [https://kubernetes.github.io/ingress-nginx/](https://kubernetes.github.io/ingress-nginx/)
 
 ### 127.  How do you configure a Pod to have access to the host's file system in Kubernetes?
 
