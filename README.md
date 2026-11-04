@@ -1,9 +1,8 @@
+# Kubernetes operations runbook: cluster administration, networking and troubleshooting
 
-# Certified Kubernetes Administrator (CKA) Exam Preparation Questions and Answers
+A hands-on Kubernetes operations runbook for engineers who run clusters: 150 questions and answers on cluster administration, workloads, networking, storage, security, upgrades and troubleshooting, with tested YAML examples and `kubectl` commands for current Kubernetes releases.
 
-Learn and practice essential Kubernetes concepts for the CKA exam with detailed explanations and examples.
-
-This repository helps you understand core Kubernetes concepts and prepare for the CKA exam. It includes clear explanations, practical examples, and hands-on exercises to solidify your understanding of Kubernetes administration.
+Every YAML example is validated against the current Kubernetes schema in CI. See [CONTRIBUTING.md](CONTRIBUTING.md) if you want to improve the runbook.
 
 ## Table of Contents
 
@@ -157,8 +156,9 @@ This repository helps you understand core Kubernetes concepts and prepare for th
 - [148. Explain the purpose and functionality of Kubernetes Admission Webhooks.](#148-explain-the-purpose-and-functionality-of-kubernetes-admission-webhooks)
 - [149.  How do you configure a Pod to be scheduled on a node with a specific label in Kubernetes?](#149--how-do-you-configure-a-pod-to-be-scheduled-on-a-node-with-a-specific-label-in-kubernetes)
 - [150. What are some best practices for managing Kubernetes YAML configuration files?](#150-what-are-some-best-practices-for-managing-kubernetes-yaml-configuration-files)
+- [License](#license)
 
-## CKA Exam Q&A
+## Questions and Answers
 
 ### 1. What is Kubernetes?
 
@@ -3745,3 +3745,7 @@ spec:
 - **Linting:** Use YAML linters to ensure consistent formatting, indentation, and adherence to best practices.
 
 **Documentation:** While there's no single page dedicated to YAML management, these practices are recommended throughout Kubernetes documentation, especially in relation to configuration and deployment best practices.
+
+## License
+
+Copyright 2026 Stanislav. Licensed under [CC BY 4.0](LICENSE).
