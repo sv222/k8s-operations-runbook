@@ -2790,7 +2790,7 @@ Requests with the header `X-Env: beta` go to `beta-service`; all other requests 
 
 **Documentation:**
 
-- HTTPRoute: [https://gateway-api.sigs.k8s.io/api-types/httproute/](https://gateway-api.sigs.k8s.io/api-types/httproute/)
+- HTTPRoute: [https://kubernetes.io/docs/concepts/services-networking/gateway/#httproute](https://kubernetes.io/docs/concepts/services-networking/gateway/#httproute)
 - Ingress: [https://kubernetes.io/docs/concepts/services-networking/ingress/](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 
 ### 117. How do you troubleshoot a Kubernetes Service that is not routing traffic to its backend Pods?
