@@ -2355,6 +2355,7 @@ spec:
 
 - Resource Limits define the maximum amount of resources (CPU, memory) that a container can consume.
 - They prevent resource starvation by ensuring that one container cannot monopolize resources needed by others.
+- CPU above the limit is throttled; memory above the limit gets the container OOMKilled.
 
 **Use Cases:**
 
@@ -2455,7 +2456,7 @@ spec:
 
 - **Guaranteed:**
   - Highest priority.
-  - Pod gets the exact resources it requests (requests = limits).
+  - Every container sets CPU and memory requests equal to its limits; the Pod gets exactly what it requests.
   - Suitable for critical applications.
 - **Burstable:**
   - Medium priority.
@@ -2490,6 +2491,7 @@ spec:
   securityContext:
     runAsUser: 1000 # Run as user with ID 1000
     runAsGroup: 1000 # Run as group with ID 1000
+    runAsNonRoot: true # Kubelet refuses to start the container if its image runs as UID 0
   containers:
   - name: my-container
     image: my-secure-image
@@ -2506,7 +2508,7 @@ spec:
 | **Purpose** | Manages stateful applications (e.g., databases) |  Manages stateless applications |
 | **Pod Identity** | Each Pod has a unique, stable network identity (hostname, ordinal index) | Pods are interchangeable |
 | **Storage** |  Uses PersistentVolumes to provide persistent storage | Storage is typically ephemeral (unless PersistentVolumes are explicitly used) |
-| **Scaling** |  Scaled up and down in order | Scaled up and down arbitrarily |
+| **Scaling** |  Scaled up and down in order by default (`OrderedReady`; `Parallel` is optional) | Scaled up and down arbitrarily |
 | **Updates** |  Performed in a graceful, ordered manner |  Updates can be rolled out or recreated |
 
 **Documentation:**
@@ -2520,7 +2522,7 @@ spec:
 
 **EndpointSlice:**
 
-- A newer Kubernetes object (beta in 1.17, GA in 1.21 and now the default) that represents a subset of endpoints (IP addresses and ports) for a Service.
+- A Kubernetes object (beta in 1.17, GA in 1.21) that represents a subset of endpoints (IP addresses and ports) for a Service. It replaces the older Endpoints API for this purpose.
 - EndpointSlices distribute the endpoint information, improving scalability and performance, especially in large clusters.
 
 **Purpose:**
@@ -2549,6 +2551,7 @@ While Kubernetes doesn't directly allow specifying a network interface within a 
 - **Multus CNI Plugin (More Flexible and Secure):**
   - Install the Multus CNI plugin in your cluster.
   - Define multiple network attachments in your Pod specification using annotations.
+  - Each network named in the annotation needs a matching `NetworkAttachmentDefinition` object.
 
 **Example (Multus):**
 
@@ -2570,8 +2573,8 @@ spec:
 
 **Documentation:**
 
-- Host Networking: [https://kubernetes.io/docs/concepts/security/pod-security-admission/](https://kubernetes.io/docs/concepts/security/pod-security-admission/)
-- Multus CNI: [https://github.com/intel/multus-cni](https://github.com/intel/multus-cni)
+- Host Networking: [https://kubernetes.io/docs/concepts/security/pod-security-standards/](https://kubernetes.io/docs/concepts/security/pod-security-standards/)
+- Multus CNI: [https://github.com/k8snetworkplumbingwg/multus-cni](https://github.com/k8snetworkplumbingwg/multus-cni)
 
 ### 109.  What is a Kubernetes Admission Controller, and describe its role in cluster security.
 
@@ -2585,20 +2588,19 @@ spec:
 **Role in Cluster Security:**
 
 - **Policy Enforcement:** Enforce security best practices by:
-  - Preventing Pods from running as root.
-  - Requiring resource requests and limits.
+  - Preventing Pods from running as root (Pod Security Admission, `runAsNonRoot`).
+  - Requiring resource requests and limits (for example, with `ValidatingAdmissionPolicy`).
   - Validating container image sources.
 - **Configuration Validation:** Ensure that resources are created with valid settings:
   - Check for required labels or annotations.
-  - Prevent resource name collisions.
+  - Enforce naming and label conventions.
   - Validate resource quotas.
-- **Security Auditing:**  Log and monitor API requests for auditing and threat detection.
 
 **Commonly Used Admission Controllers:**
 
 - `LimitRanger`
 - `ResourceQuota`
-- `PodSecurityPolicy` (removed in Kubernetes 1.25, replaced by Pod Security Admission)
+- `PodSecurity` (Pod Security Admission; replaces PodSecurityPolicy, which was removed in Kubernetes 1.25)
 - `ImagePolicyWebhook`
 
 **Documentation:** [https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
@@ -2662,17 +2664,17 @@ spec:
 
 **Canary Deployment with Deployments:**
 
-1. **Update the Deployment:** Modify your Deployment to use the new image or configuration, but initially set the number of replicas for the canary to a small percentage (e.g., 1 or 2).
+1. **Create a canary Deployment:** Keep the current Deployment as the stable track. Create a second Deployment with the new image, the same shared label (for example `app: my-app`), and a small `replicas` value (e.g., 1 or 2). One Deployment cannot run two versions at different ratios, so two Deployments are needed.
 
-2. **Apply the Deployment:** Apply the updated Deployment. Kubernetes will create the canary Pods alongside the existing Pods.
+2. **Route traffic to both:** The Service selector matches only the shared label, so requests are spread roughly in proportion to Pod count.
 
 3. **Monitor the Canary:** Closely monitor the canary Pods for errors, performance regressions, or unexpected behavior. Use metrics, logs, and other observability tools.
 
-4. **Gradually Increase Canary Replicas:** If the canary is healthy, gradually increase the number of canary replicas (e.g., to 25%, then 50%) while reducing the replicas of the old version.
+4. **Shift the Ratio:** If the canary is healthy, scale the canary up and the stable Deployment down (e.g., to 25%, then 50%).
 
-5. **Complete the Rollout:**  Once you're confident in the canary, scale the canary replicas to the desired state and remove the old Pods.
+5. **Complete the Rollout:** Once you're confident, scale the canary Deployment to the full replica count and delete the old Deployment.
 
-**Note:** Kubernetes doesn't have a built-in canary deployment feature. The above steps outline a manual approach to achieving a canary deployment pattern.
+**Note:** Core Kubernetes has no built-in canary feature, and replica-based canaries cannot target exact traffic percentages. For weighted traffic, use a service mesh, Gateway API weighted backends, or a progressive delivery controller such as Argo Rollouts or Flagger.
 
 ### 113. What are some key considerations when designing a multi-tenant Kubernetes cluster?
 
@@ -2683,6 +2685,7 @@ spec:
 - **Resource Isolation:**
   - Use namespaces to isolate resources (Pods, Services, etc.) for each tenant.
   - Implement resource quotas to prevent one tenant from consuming excessive resources.
+  - Enforce Pod Security Standards per namespace with Pod Security Admission (for example, the `pod-security.kubernetes.io/enforce: restricted` label).
 
 - **Network Segmentation:**
   - Use Network Policies to control network traffic between tenants and limit the impact of security breaches.
@@ -2700,7 +2703,7 @@ spec:
   - Provide tenants with tools to monitor and log their own applications and resources.
   - Implement centralized logging and monitoring for cluster-level visibility.
 
-**Documentation:** Multi-tenancy is a complex topic. While not a single page, Kubernetes documentation provides guidance on resource isolation, network policies, and RBAC, which are essential for multi-tenancy.
+**Documentation:** [https://kubernetes.io/docs/concepts/security/multi-tenancy/](https://kubernetes.io/docs/concepts/security/multi-tenancy/)
 
 ### 114. Describe the purpose and functionality of the Kubernetes Container Runtime Interface (CRI).
 
@@ -2716,6 +2719,7 @@ spec:
 - **Abstraction Layer:**  CRI defines a standard set of APIs for container lifecycle management (creating, starting, stopping, deleting containers), image management, and resource isolation.
 - **Runtime Plugins:**  Container runtimes (like containerd or CRI-O) implement the CRI APIs. Docker Engine is no longer supported directly (dockershim was removed in Kubernetes 1.24); it works only through the cri-dockerd adapter.
 - **kubelet Integration:**  The kubelet interacts with container runtimes through the CRI, issuing commands and receiving status updates.
+- **Checking the runtime:** `kubectl get nodes -o wide` shows each node's runtime in the CONTAINER-RUNTIME column.
 
 **Benefits:**
 
@@ -2740,7 +2744,7 @@ metadata:
   name: my-pod
 spec:
   hostname: my-custom-hostname
-  subdomain: my-app # Optional; a single DNS label - the cluster domain suffix is added automatically
+  subdomain: my-app # Optional; must match the name of a headless Service
   containers:
   - name: my-container
     image: nginx
@@ -2749,9 +2753,9 @@ spec:
 **Explanation:**
 
 - **`hostname`:** Sets the hostname of the Pod. This hostname is used within the Pod's network namespace.
-- **`subdomain`:** (Optional) Specifies a subdomain to be added to the Pod's hostname. This allows for more organized DNS resolution within the cluster.
+- **`subdomain`:** (Optional) Sets the Pod's DNS subdomain. A DNS record (`<hostname>.<subdomain>.<namespace>.svc.cluster.local`) is published only if a headless Service with the same name as `subdomain` selects the Pod.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/workloads/pods/](https://kubernetes.io/docs/concepts/workloads/pods/)
+**Documentation:** [https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
 
 ### 116. What are some strategies for implementing zero-downtime deployments in Kubernetes?
 
@@ -2776,6 +2780,7 @@ spec:
 **Key Considerations:**
 
 - **Readiness Probes:** Use readiness probes to ensure that Pods are only added to the load balancer pool when they are ready to serve traffic.
+- **Graceful Shutdown:** Handle SIGTERM in the application, or add a `preStop` hook, and size `terminationGracePeriodSeconds` so in-flight requests finish before the Pod is removed.
 - **Monitoring and Observability:**  Closely monitor deployments and have robust alerting in place to quickly detect and address issues.
 
 **Documentation:** While Kubernetes doesn't have a single "zero-downtime deployment" feature, its documentation covers the concepts and techniques needed to achieve zero downtime through strategies like RollingUpdates, Services, and Ingress.
@@ -2805,47 +2810,42 @@ spec:
 
 **Answer:**
 
-You can route traffic based on HTTP headers using an **Ingress** resource with an Ingress Controller that supports header-based routing.
+The core `Ingress` and `Service` APIs cannot match on HTTP headers. Use the Gateway API `HTTPRoute`, which supports header matches natively, or a controller-specific feature.
 
-**Example (Using Nginx Ingress):**
+**Example (Gateway API HTTPRoute):**
 
 > **Note:** The community Ingress NGINX project was retired in March 2026 and receives no further security fixes. For new setups, consider the [Gateway API](https://gateway-api.sigs.k8s.io/) or another maintained controller.
 
-1. **Create an Ingress Resource:**
+<!-- skip-validate -->
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: header-routing
+spec:
+  parentRefs:
+  - name: my-gateway # An existing Gateway
+  hostnames:
+  - example.com
+  rules:
+  - matches:
+    - headers:
+      - name: X-Env
+        value: beta
+    backendRefs:
+    - name: beta-service
+      port: 80
+  - backendRefs: # Default route for all other requests
+    - name: stable-service
+      port: 80
+```
 
-   ```yaml
-   apiVersion: networking.k8s.io/v1
-   kind: Ingress
-   metadata:
-     name: my-ingress
-   spec:
-     rules:
-     - host: example.com
-       http:
-         paths:
-         - path: /users
-           pathType: Prefix
-           backend:
-             service:
-               name: users-service
-               port:
-                 number: 80
-         - path: /admin
-           pathType: Prefix
-           backend:
-             service:
-               name: admin-service
-               port:
-                 number: 8080
-   ```
-
-2. **Configure Nginx Ingress for Header-Based Routing (Example):**
-   - Assuming you are using the Nginx Ingress controller, you would add annotations to your Ingress to define header-based routing rules. Refer to the Nginx Ingress documentation for specific annotation syntax.
+Requests with the header `X-Env: beta` go to `beta-service`; all other requests go to `stable-service`.
 
 **Documentation:**
 
+- HTTPRoute: [https://gateway-api.sigs.k8s.io/api-types/httproute/](https://gateway-api.sigs.k8s.io/api-types/httproute/)
 - Ingress: [https://kubernetes.io/docs/concepts/services-networking/ingress/](https://kubernetes.io/docs/concepts/services-networking/ingress/)
-- Nginx Ingress: [https://kubernetes.github.io/ingress-nginx/](https://kubernetes.github.io/ingress-nginx/) (Refer to their documentation for header-based routing configuration)
 
 ### 119. Explain the concept of a Kubernetes "context" and how it's used for managing multiple clusters.
 
@@ -2887,6 +2887,7 @@ kubectl config use-context production
 
 2. **Verify Pod Labels and Selectors:**
    - Make sure the Pod labels match the Service's selector. Use `kubectl get pods -l <selector>` and `kubectl describe service <service-name>`.
+   - Confirm the Service `targetPort` matches the port the container listens on (`kubectl get service <service-name> -o yaml`).
 
 3. **Inspect Pod Status:**
    - Check if the Pods are running and in a "Ready" state: `kubectl get pods`.
@@ -2899,7 +2900,7 @@ kubectl config use-context production
    - Confirm that the Service name can be resolved to its ClusterIP address: `nslookup <service-name>`.
 
 6. **Kube-proxy Issues:**
-   - If using `NodePort` or `LoadBalancer`, check if kube-proxy is running on the nodes and if iptables rules are correctly configured.
+   - Check that kube-proxy (or your CNI's kube-proxy replacement) is running on every node and has programmed rules. This applies to every Service type, including `ClusterIP`.
 
 7. **Cloud Provider Issues (for LoadBalancer):**
    - For `LoadBalancer` Services, ensure the load balancer is properly provisioned and configured in your cloud environment.
@@ -2917,14 +2918,16 @@ kubectl config use-context production
 **Purpose:**
 
 - **Manage External Access:**  Provides a single entry point for external traffic to reach services in your cluster.
-- **Traffic Routing:** Routes traffic based on rules defined in Ingress resources, including hostnames, paths, and headers.
+- **Traffic Routing:** Routes traffic based on rules defined in Ingress resources, including hostnames and paths. Header-based rules depend on the controller.
 - **TLS Termination:** Offloads SSL/TLS encryption and decryption, simplifying certificate management.
 
 **Benefits:**
 
 - **Simplified Configuration:**  Use Ingress resources (YAML files) to define routing rules, making it easy to manage traffic.
-- **Flexibility and Features:** Ingress Controllers offer features like virtual hosting, path-based routing, and header-based routing.
+- **Flexibility and Features:** Ingress Controllers offer features like virtual hosting and path-based routing. Header-based routing is controller-specific.
 - **Improved Security:**  Centralize TLS/SSL termination and apply security policies at the Ingress Controller level.
+
+> The Ingress API is frozen; new routing features are being added to the Gateway API.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/ingress/](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 
@@ -2934,12 +2937,12 @@ kubectl config use-context production
 
 **Container Lifecycle Hooks:**
 
-- Lifecycle hooks allow you to run code or commands at specific points during a container's lifecycle: startup, shutdown, or when a container is being terminated.
+- Lifecycle hooks let a container run code at two points: right after it starts (`PostStart`) and right before it terminates (`PreStop`).
 
 **Phases:**
 
 - **`PostStart`:**
-  - Executed immediately *after* a container is created.
+  - Executed immediately *after* a container is created. There is no guarantee it finishes before the container's ENTRYPOINT runs.
   - Useful for tasks like:
     - Running one-time setup scripts.
     - Sending notifications about container startup.
@@ -2949,10 +2952,11 @@ kubectl config use-context production
     - Deregistering from service discovery.
     - Closing database connections.
     - Performing cleanup operations.
+  - The hook counts against `terminationGracePeriodSeconds` (default 30 seconds).
 
 **Implementation:**
 
-- Define lifecycle hooks in the `lifecycle` section of your container specification in the Pod definition.
+- Define lifecycle hooks in the `lifecycle` section of the container spec, using an `exec` or `httpGet` handler.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/)
 
@@ -2972,8 +2976,8 @@ metadata:
 spec:
   initContainers:
   - name: init-mydb
-    image: mysql:5.7
-    command: ["bash", "-c", "mysql -u root -p$MYSQL_ROOT_PASSWORD < /docker-entrypoint-initdb.d/init.sql"]
+    image: busybox:1.36
+    command: ["sh", "-c", "until nslookup my-db; do sleep 2; done"]
     resources:
       requests:
         cpu: "100m"
@@ -2988,8 +2992,9 @@ spec:
 
 **Explanation:**
 
-- **`requests`:** The minimum amount of resources the init container needs to start.
-- **`limits`:** The maximum amount of resources the init container is allowed to consume.
+- **`requests`:** Used by the scheduler to place the Pod. The init container is guaranteed at least this amount while it runs.
+- **`limits`:** The maximum the init container may use.
+- Init containers run one at a time. The scheduler reserves the larger of the highest init container request and the sum of the regular container requests.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/pods/init-containers/](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
 
@@ -3012,8 +3017,10 @@ spec:
        image: my-image
        env:
        - name: DATABASE_URL
-         value: "https://mydb.example.com"
+         value: "postgres://mydb.example.com:5432/app"
    ```
+
+   `env` entries can also take a value from a ConfigMap or Secret with `valueFrom` (`configMapKeyRef` or `secretKeyRef`).
 
 2. **`envFrom` Field (From ConfigMaps or Secrets):**
 
@@ -3044,6 +3051,9 @@ spec:
      containers:
      - name: my-container
        image: my-image
+       env:
+       - name: DATABASE_URL
+         value: "postgres://mydb.example.com:5432/app"
        command: ["my-app", "--database-url=$(DATABASE_URL)"]
    ```
 
@@ -3060,15 +3070,15 @@ spec:
 
 **Purpose:**
 
-- **Service Discovery and Load Balancing:**  kube-proxy listens for Service and Endpoint object changes and updates iptables (or ipvs) rules to:
+- **Service Discovery and Load Balancing:**  kube-proxy watches Service and EndpointSlice objects and programs iptables, IPVS or nftables rules to:
   - Direct traffic to the correct Pods backing a Service.
   - Load balance traffic across multiple Pods.
 - **Expose Services Externally:** For `NodePort` and `LoadBalancer` services, kube-proxy configures rules to make services accessible from outside the cluster.
 
 **Functionality:**
 
-1. **Watch for Changes:** kube-proxy watches the Kubernetes API server for changes to Services and EndpointSlices (the primary data source for proxying since EndpointSlice went GA in 1.21).
-2. **Update Network Rules:**  Based on changes, kube-proxy updates iptables/ipvs rules on the node to reflect the correct routing information.
+1. **Watch for Changes:** kube-proxy watches the API server for changes to Services and EndpointSlices, which it uses by default for endpoint data.
+2. **Update Network Rules:**  Based on changes, kube-proxy updates iptables, IPVS or nftables rules on the node to reflect the correct routing information.
 3. **Traffic Forwarding:**  Network traffic is forwarded according to the configured rules.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/service/#proxy-mode](https://kubernetes.io/docs/concepts/services-networking/service/#proxy-mode)
