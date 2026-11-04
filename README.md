@@ -3089,7 +3089,7 @@ spec:
 
 **Blue/Green with Ingress:**
 
-1. **Create Separate Ingress Resources:** Define two Ingress resources, one for the "blue" (existing) deployment and one for the "green" (new) deployment. They should have the same hostnames but different paths or annotations to differentiate traffic.
+1. **Create Separate Ingress Resources:** Define two Ingress resources, one for the "blue" (existing) deployment and one for the "green" (new) deployment. Both use the same host; the green Ingress is marked as a canary so the controller splits traffic between them.
 
 2. **Configure Ingress Controller:**  Configure your Ingress Controller (e.g., Nginx Ingress) to route traffic based on the Ingress rules.
 
@@ -3105,20 +3105,46 @@ spec:
 # Blue Ingress (initially active)
 apiVersion: networking.k8s.io/v1
 kind: Ingress
-# ... other Ingress configurations ...
 metadata:
+  name: app-blue
   annotations:
     nginx.ingress.kubernetes.io/canary: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: app.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-blue
+            port:
+              number: 80
 
 ---
-# Green Ingress (initially inactive)
+# Green Ingress (initially inactive, same host)
 apiVersion: networking.k8s.io/v1
 kind: Ingress
-# ... other Ingress configurations ...
 metadata:
+  name: app-green
   annotations:
     nginx.ingress.kubernetes.io/canary: "true"
     nginx.ingress.kubernetes.io/canary-weight: "0" # Initially no traffic
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: app.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-green
+            port:
+              number: 80
 ```
 
 **Documentation:**
@@ -3211,7 +3237,7 @@ spec:
   - Pod selectors (labels)
   - Namespaces
   - IP addresses and ports
-- **Traffic Enforcement:**  NetworkPolicy rules are enforced by network plugins (like Calico, Cilium, or Weave Net).
+- **Traffic Enforcement:**  NetworkPolicy rules are enforced by network plugins that support them (like Calico, Cilium, or Antrea). The API object does nothing on a plugin that ignores it.
 - **Default Deny:** You can implement a "default deny" policy, where no traffic is allowed unless explicitly permitted by a NetworkPolicy.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/network-policies/](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
@@ -3224,9 +3250,9 @@ Use the `dnsPolicy` field in your Pod specification to control how DNS settings 
 
 **DNS Policy Options:**
 
-- **`ClusterFirst` (default):** Uses the cluster's internal DNS service (typically `kube-dns` or `CoreDNS`).
+- **`ClusterFirst` (default):** Uses the cluster's internal DNS service (CoreDNS in most clusters).
 - **`Default`:** Inherits DNS settings from the node where the Pod is scheduled (the host's `/etc/resolv.conf`).
-- **`ClusterFirstWithHostNet`:**  Similar to `ClusterFirst` but also includes host's `/etc/resolv.conf` if the Pod uses `hostNetwork: true`.
+- **`ClusterFirstWithHostNet`:**  For Pods with `hostNetwork: true`. Cluster names resolve through cluster DNS, and other names resolve through the node's upstream nameservers.
 - **`None`:** Ignores Kubernetes-provided DNS settings and uses the `dnsConfig` section in the Pod spec to define custom DNS.
 
 **Example:**
@@ -3243,6 +3269,28 @@ spec:
   dnsPolicy: "ClusterFirst" # Use cluster DNS
 ```
 
+To ignore the cluster DNS settings and define your own, use `None` with `dnsConfig`:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod-custom-dns
+spec:
+  containers:
+  - name: my-container
+    image: my-image
+  dnsPolicy: "None"
+  dnsConfig:
+    nameservers:
+    - 10.0.0.53
+    searches:
+    - corp.example.com
+    options:
+    - name: ndots
+      value: "2"
+```
+
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
 
 ### 131. What are some strategies for securing secrets at rest in Kubernetes?
@@ -3251,12 +3299,12 @@ spec:
 
 **Securing Secrets at Rest:**
 
-- **Enable etcd Encryption:**  Encrypt the Kubernetes cluster's etcd data store at rest, which includes Secret data. This is typically done during cluster creation or configuration.
+- **Enable etcd Encryption:**  Encrypt the Kubernetes cluster's etcd data store at rest, which includes Secret data. Set it up with an `EncryptionConfiguration` file that the kube-apiserver loads through `--encryption-provider-config`.
 - **Use External Secrets Management Solutions:**
   - Store secrets in dedicated secrets management solutions like HashiCorp Vault, AWS Secrets Manager, Azure Key Vault, or Google Cloud Secret Manager.
   - Use Kubernetes Secrets to store references or credentials for accessing the external secrets store.
 - **Secrets Encryption Providers:**
-  - Kubernetes supports encrypting Secret data using Key Management Service (KMS) plugins. This allows you to manage encryption keys separately from Kubernetes.
+  - Kubernetes supports encrypting Secret data through KMS providers (use the KMS v2 API). This lets you manage the encryption keys outside Kubernetes.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/secret/#best-practices](https://kubernetes.io/docs/concepts/configuration/secret/#best-practices)
 
@@ -3296,6 +3344,7 @@ spec:
 - **Metric Collection:**  The Metrics Server (or a custom metrics provider) collects metrics from your Pods.
 - **HPA Monitoring:**  The HPA continuously monitors the collected metrics.
 - **Scaling Decisions:** If the metrics exceed the configured thresholds (e.g., CPU utilization is consistently above 50%), the HPA will increase or decrease the number of replicas in the Deployment to maintain the target resource utilization.
+- **Requirement:** For a `Utilization` target, every container in the Pods must set `resources.requests`. Without them the HPA cannot compute a percentage and reports `unknown` metrics.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
 
@@ -3316,14 +3365,15 @@ spec:
 - **PVC Pending:**  If the Pod uses a PersistentVolumeClaim (PVC), the PVC might still be in a "Pending" state because:
   - No matching PersistentVolume (PV) is available.
   - StorageClass provisioning is taking time.
-- **Admission Controller Blocking:** An Admission Controller might be blocking the Pod creation due to policy violations.
-- **ResourceQuota Limits:** The namespace's ResourceQuota might be exhausted, preventing new Pods from being created.
+- **Unsatisfiable Scheduling Constraints:** Pod anti-affinity or `topologySpreadConstraints` that no node can satisfy.
+- **Creation Rejected (no Pending Pod):** ResourceQuota and admission webhooks reject the Pod before it is stored, so it never appears as Pending. Look for `FailedCreate` events on the ReplicaSet instead.
 
 **Troubleshooting Steps:**
 
 - **`kubectl describe pod <pod-name>`:** Check the "Events" section for clues about the pending state.
 - **`kubectl get nodes`:**  Inspect node status and resources.
 - **`kubectl get events`:** Look for events related to the Pod or its resources.
+- **`kubectl get pvc`:** Check whether a PersistentVolumeClaim the Pod uses is stuck in `Pending`.
 
 ### 134. Explain the purpose and use cases for Kubernetes PodDisruptionBudgets (PDBs).
 
@@ -3352,6 +3402,8 @@ Use the `restartPolicy` field in the Pod specification.
 - **`Always`:**  (Default) Restart the container automatically if it exits, regardless of the exit code.
 - **`OnFailure`:**  Restart the container only if it exits with a non-zero exit code (indicating an error).
 - **`Never`:**  Never restart the container.
+
+Restarts happen in place on the same node, and the kubelet waits longer between each one (exponential back-off, shown as `CrashLoopBackOff`). The policy applies to every container in the Pod.
 
 **Example:**
 
@@ -3427,6 +3479,7 @@ spec:
     spec:
       template:
         spec:
+          restartPolicy: OnFailure # Job pods must use Never or OnFailure
           containers:
           - name: backup-job
             image: backup-image
@@ -3461,7 +3514,9 @@ spec:
 
 - **`tcpSocket`:**  Specifies that the probe should attempt to open a TCP connection to the specified `port` on the container.
 - **`initialDelaySeconds`:** (Optional)  The number of seconds after the container starts before liveness probes are initiated.
-- **`periodSeconds`:** (Optional) How often (in seconds) to perform the probe.
+- **`periodSeconds`:** (Optional) How often (in seconds) to perform the probe. Default: 10.
+- **`failureThreshold`:** (Optional) Consecutive failures before the kubelet restarts the container. Default: 3.
+- A TCP check only confirms that the port accepts connections. It does not verify application health.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#define-a-tcp-liveness-probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#define-a-tcp-liveness-probe)
 
@@ -3484,7 +3539,6 @@ spec:
 - **Reduced Operational Overhead:**  Focus on applications, not cluster management.
 - **Faster Time to Market:**  Deploy clusters and applications quickly.
 - **Scalability and Availability:**  Leverage cloud provider's infrastructure for high availability and scalability.
-- **Security and Compliance:**  Benefit from cloud provider's security features and compliance certifications.
 
 **Examples of Managed Kubernetes Services:**
 
@@ -3518,7 +3572,8 @@ spec:
 
 **Importance of ServiceAccounts:**
 
-- **Pod Identity:** Provides an identity for Pods to authenticate with the Kubernetes API server.
+- **Pod Identity:** Provides an identity for Pods to authenticate with the Kubernetes API server. Since Kubernetes 1.24, the kubelet mounts a short-lived bound token through a projected volume; no long-lived token Secret is created automatically.
+- **Least Exposure:** Pods that never call the API can set `automountServiceAccountToken: false`.
 - **Access Control:**  Used in conjunction with RBAC to grant Pods specific permissions based on their associated ServiceAccount.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/)
@@ -3529,8 +3584,8 @@ spec:
 
 **Resource Requests:**
 
-- Resource requests specify the minimum amount of CPU and memory that a container needs to run.
-- They play a crucial role in Pod scheduling.
+- Resource requests specify the amount of CPU and memory that the scheduler reserves for a container.
+- Requests affect scheduling and QoS class only. They do not cap actual usage; use `limits` for that.
 
 **Impact on Scheduling:**
 
@@ -3562,7 +3617,7 @@ spec:
 
 | Command | Purpose | Idempotency |
 |---|---|---|
-| `kubectl create` | Creates a new resource from a file or standard input. |  Not idempotent; running it multiple times will create multiple identical resources (unless names are unique). |
+| `kubectl create` | Creates a new resource from a file or standard input. |  Not idempotent; running it again for the same name fails with `AlreadyExists`. |
 | `kubectl apply` | Creates or updates a resource based on the configuration provided. | Idempotent; you can run it multiple times with the same configuration, and it will only create the resource once. Subsequent runs will update the resource if the configuration has changed. |
 
 **Use Cases:**
@@ -3607,7 +3662,7 @@ spec:
 
 - **Extend Kubernetes:** Introduce new functionality and resources without modifying the core Kubernetes codebase.
 - **Integration with Third-Party Tools:** Integrate Kubernetes with external systems and services by providing custom API endpoints.
-- **Custom Resource Management:**  Expose APIs for managing custom resources defined by CRDs.
+- **Custom API Backends:** Serve resource types that CRDs cannot express, such as custom storage behavior, through your own API server.
 
 **Functionality:**
 
@@ -3630,7 +3685,7 @@ spec:
 
 **Rollback Trigger:**
 
-- **Deployment Failure:**  If the rollout of a new ReplicaSet fails (e.g., Pods fail to become ready), the rollout stalls, and once `progressDeadlineSeconds` is exceeded the Deployment is marked as failed. No automatic rollback happens; you roll back to the previous ReplicaSet manually.
+- **Deployment Failure:**  If new Pods never become ready, the Deployment reports `ProgressDeadlineExceeded` once `progressDeadlineSeconds` (default 600) has passed.
 
 **Manual Rollback:**
 
@@ -3652,12 +3707,13 @@ spec:
 - **Access Control:** RBAC (Role-Based Access Control) policies can be applied at the namespace level, limiting access to resources based on user roles and permissions.
 - **Network Segmentation:** NetworkPolicies can be used to restrict network traffic between namespaces, providing an additional layer of security.
 - **Resource Quotas:** Resource quotas prevent one namespace from consuming excessive resources, protecting other namespaces from resource starvation.
+- **Pod Security Admission:** Namespace labels such as `pod-security.kubernetes.io/enforce: restricted` enforce the Pod Security Standards.
 
 **Security Benefits:**
 
 - **Least Privilege:**  Enforce the principle of least privilege by granting users access only to the namespaces and resources they need.
-- **Reduced Blast Radius:**  Contain security breaches within a namespace, preventing them from affecting other parts of the cluster.
-- **Improved Auditing and Monitoring:** Separate logs and monitoring data by namespace, making it easier to track security-related events.
+- **Reduced Blast Radius:**  Limits how far a breach spreads. Namespaces alone are not a hard isolation boundary, because Pods in different namespaces still share nodes and the kernel.
+- **Improved Auditing:** Audit events and metrics carry the namespace, so security-related events are easier to filter.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) (and related documentation on RBAC and NetworkPolicies)
 
@@ -3681,8 +3737,8 @@ spec:
    - Confirm that the image actually exists in the registry.
    - Log in to the registry and check the image repository.
 
-5. **Resource Limits (Image Size):**
-   - Check if there are any resource limits (e.g., `LimitRange`) in the namespace that might restrict the size of images that can be pulled.
+5. **Read the Pod Events:**
+   - Run `kubectl describe pod <pod-name>` and read the exact pull error (e.g., `unauthorized`, `manifest unknown`, or `429 Too Many Requests` from a registry rate limit). The error shows which of the steps above applies.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
@@ -3706,6 +3762,7 @@ spec:
 1. **Webhook Registration:** You register webhooks using the `ValidatingWebhookConfiguration` or `MutatingWebhookConfiguration` objects.
 2. **API Request Interception:**  When an API request matches a webhook's configuration, the API server sends a request to the webhook's endpoint.
 3. **Webhook Logic:** Your webhook code processes the request and either approves, rejects, or modifies the request.
+4. **Failure Handling:** `failurePolicy: Fail` rejects the request if the webhook is unreachable or times out; `Ignore` admits it. A failing webhook with `Fail` can block every matching create, so run it highly available and set a short `timeoutSeconds`.
 
 **Documentation:** [https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#webhook](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#webhook)
 
@@ -3713,7 +3770,7 @@ spec:
 
 **Answer:**
 
-Use **Node Selectors** in your Pod specification to match nodes with specific labels.
+Use **Node Selectors** in your Pod specification to match nodes with specific labels. Label the target node first, for example with `kubectl label nodes <node-name> disktype=ssd`.
 
 **Example:**
 
@@ -3745,7 +3802,7 @@ spec:
 - **Version Control:** Use Git or another version control system to track changes to your YAML files.
 - **Templates and Templating Tools:**  Use templating tools (Helm, Kustomize) to create reusable configuration templates and manage variations between environments.
 - **Modularization:**  Break down large YAML files into smaller, more manageable modules.
-- **Validation:**  Validate your YAML files before applying them to the cluster using `kubectl apply --dry-run=client -f <file> -o yaml` or online validators.
+- **Validation:**  Check manifests before applying them. `kubectl apply --dry-run=server -f <file>` validates against the API server, and `kubectl diff -f <file>` shows what would change.
 - **Comments and Documentation:** Add clear and concise comments to your YAML files to explain the purpose of different sections and configurations.
 - **Linting:** Use YAML linters to ensure consistent formatting, indentation, and adherence to best practices.
 
