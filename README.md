@@ -1035,7 +1035,7 @@ The kubelet is the primary "node agent" that runs on each node in a Kubernetes c
 - **Pod Management:**  Starting, stopping, and monitoring the containers within Pods according to PodSpecs.
 - **Container Health Checks:** Performing liveness and readiness probes on containers.
 - **Image Management:**  Pulling container images from registries as needed.
-- **Resource Monitoring:**  Reporting node and container resource usage to the master node.
+- **Resource Monitoring:**  Reporting node and container resource usage to the control plane through the API server.
 - **Volume Mounting:**  Attaching and mounting storage volumes to containers.
 
 **Documentation:** [https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/)
@@ -1050,7 +1050,7 @@ The API server is the central control plane component that exposes the Kubernete
 
 - **Handling API Requests:**  Receiving RESTful requests from users, clients, and other cluster components.
 - **Authenticating and Authorizing Requests:** Verifying the identity of the requester and ensuring they have permission to perform the requested action.
-- **Managing Cluster State:** Storing and serving the configuration and state of cluster objects (Pods, Deployments, Services, etc.).
+- **Managing Cluster State:** Serving the configuration and status of cluster objects (Pods, Deployments, Services, etc.). The API server is the only component that reads and writes etcd directly.
 - **Validating and Persisting Data:** Ensuring that submitted API requests adhere to the Kubernetes API schema and persisting valid changes to etcd.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/overview/components/#kube-apiserver](https://kubernetes.io/docs/concepts/overview/components/#kube-apiserver)
@@ -1090,7 +1090,7 @@ While Kubernetes doesn't have built-in blue/green deployments, you can achieve i
 2. **Traffic Shifting:**
     - Gradually shift traffic from the Service to the "green" Deployment using techniques like:
         - **Updating Service Selectors:** Directly modify the Service to select the new Pods.
-        - **Ingress with Weighted Routing:**  Use an Ingress controller with weighted routing rules.
+        - **Gateway API Weighted Routing:**  Split traffic with weighted `backendRefs` in an HTTPRoute. The core Ingress API has no traffic weights.
         - **Service Mesh (Istio, Linkerd):**  Employ a service mesh for more advanced traffic management.
 
 3. **Verification and Rollback:**
@@ -1118,7 +1118,7 @@ While Kubernetes doesn't have built-in blue/green deployments, you can achieve i
 
 **Documentation:** While not a dedicated page, immutability is a core concept discussed throughout Kubernetes documentation, especially in relation to image management and security.
 
-**Explanation:**  Immutable images are fundamental to the reliability, security, and scalability of containerized applications in Kubernetes.
+**Explanation:**  Tags are mutable, so reference images by digest (`image@sha256:...`) when you need an exact guarantee.
 
 ### 57. What are some strategies for managing secrets securely in Kubernetes?
 
@@ -1126,15 +1126,15 @@ While Kubernetes doesn't have built-in blue/green deployments, you can achieve i
 
 **Secret Management Strategies:**
 
-- **Kubernetes Secrets:**  Use Kubernetes Secrets as a basic mechanism for storing sensitive information, encrypting them at rest.
-- **Secrets Encryption at Rest:**  Enable etcd encryption at rest to protect Secret data even if the storage is compromised.
+- **Kubernetes Secrets:**  Keep sensitive values out of Pod specs and images. By default, Secrets are only base64-encoded, not encrypted.
+- **Secrets Encryption at Rest:**  Configure an `EncryptionConfiguration` for the kube-apiserver, preferably with a KMS provider. Existing Secrets stay unencrypted until they are rewritten.
 - **External Secrets Management Solutions:** Integrate with dedicated secrets management solutions like HashiCorp Vault, AWS Secrets Manager, or Azure Key Vault.
 - **Secrets Rotation:**  Regularly rotate secrets to limit the impact of any potential compromise.
 - **Limit Secret Access:**  Use RBAC to restrict which users and applications can access specific Secrets.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/secret/](https://kubernetes.io/docs/concepts/configuration/secret/)
 
-**Explanation:** Protecting sensitive data is crucial. Choose a strategy that aligns with your security requirements and risk tolerance.
+**Explanation:** Base64 is encoding, not protection. Combine encryption at rest with RBAC.
 
 ### 58. Describe the purpose of a Kubernetes Horizontal Pod Autoscaler (HPA).
 
@@ -1143,7 +1143,6 @@ While Kubernetes doesn't have built-in blue/green deployments, you can achieve i
 **HPA Functionality:**
 
 - Automatically scales the number of Pods in a Deployment, ReplicaSet, or StatefulSet based on observed CPU utilization, memory usage, or other custom metrics.
-- Provides a self-adjusting mechanism to handle varying workloads, ensuring optimal resource utilization and application performance.
 
 **How it Works:**
 
@@ -1154,7 +1153,7 @@ While Kubernetes doesn't have built-in blue/green deployments, you can achieve i
 
 **Documentation:** [https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
 
-**Explanation:**  The HPA is a powerful tool for automating scaling in response to demand, making your applications more resilient and cost-effective.
+**Explanation:**  CPU and memory utilization targets require metrics-server and CPU or memory `requests` on the containers. Without requests, the HPA cannot compute a utilization percentage.
 
 ### 59.  What is a Kubernetes PodDisruptionBudget (PDB), and when would you use it?
 
@@ -1167,7 +1166,7 @@ While Kubernetes doesn't have built-in blue/green deployments, you can achieve i
 **Use Cases:**
 
 - **High Availability:**  Maintain application availability during planned disruptions.
-- **Graceful Degradations:** Ensure a minimum level of service even when some Pods are unavailable.
+- **Graceful Degradation:** Ensure a minimum level of service even when some Pods are unavailable.
 
 **How it Works:**
 
@@ -1177,7 +1176,7 @@ While Kubernetes doesn't have built-in blue/green deployments, you can achieve i
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/pods/disruptions/](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/)
 
-**Explanation:** PDBs are essential for controlling the impact of disruptions, especially for applications where high availability is critical.
+**Explanation:** PDBs apply only to voluntary disruptions that go through the Eviction API, such as `kubectl drain`. They do not prevent node failures or direct Pod deletion.
 
 ### 60. How do you implement resource quotas at the namespace level in Kubernetes?
 
@@ -1207,7 +1206,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/concepts/policy/resource-quotas/](https://kubernetes.io/docs/concepts/policy/resource-quotas/)
 
-**Explanation:**  Resource quotas help prevent resource exhaustion within namespaces, ensuring fairness and predictable resource allocation.
+**Explanation:**  Quotas cap total usage per namespace. Once a quota tracks `requests.cpu` or `requests.memory`, Pods without those requests are rejected unless a LimitRange supplies defaults.
 
 ### 61. Explain the concept of a sidecar container in a Kubernetes Pod, and provide an example use case.
 
@@ -1216,7 +1215,7 @@ spec:
 **Sidecar Container:**
 
 - A container in a Pod that runs alongside the main application container but performs a supporting or auxiliary function.
-- Shares the same network namespace and lifecycle as the main container.
+- Shares the Pod's network namespace and volumes with the main container.
 
 **Use Case:**
 
@@ -1243,7 +1242,7 @@ spec:
     emptyDir: {}
 ```
 
-**Explanation:** Sidecar containers enhance the functionality of Pods by providing additional services without modifying the main application container.
+**Explanation:** Sidecar containers add supporting services without modifying the main application container. Since Kubernetes 1.33, a sidecar can also be declared as an init container with `restartPolicy: Always`, so it starts before the app containers and keeps running alongside them.
 
 ### 62. What is a Kubernetes Operator, and what are its benefits?
 
@@ -1271,17 +1270,17 @@ spec:
 
 | Feature | Ephemeral Storage | Persistent Storage |
 |---|---|---|
-| Lifecycle | Tied to the container lifecycle. Deleted when the container is deleted. | Exists independently of containers and Pods. Persists data even if Pods are deleted or rescheduled. |
+| Lifecycle | Tied to the Pod lifecycle. Survives container restarts, but is deleted when the Pod is removed from its node. | Exists independently of containers and Pods. Persists data even if Pods are deleted or rescheduled. |
 | Use Cases | Temporary files, caches, data that can be regenerated. | Databases, logs, configuration files, user-uploaded content. |
 | Examples | `emptyDir` volumes, container image layers |  `hostPath` volumes (with caution), PersistentVolumes, cloud-managed disks |
 
-**Explanation:** Understanding the distinction between ephemeral and persistent storage is crucial for choosing the right storage solution based on your application's data needs.
+**Explanation:** Choose storage based on how long the data must outlive the Pod.
 
 ### 64. How do you configure a Kubernetes Service to perform health checks on its backend Pods?
 
 **Answer:**
 
-Use the `readinessProbe` field in the Pod template of your Deployment or other controller. This field defines how the Service should check the health of Pods before routing traffic to them.
+Use the `readinessProbe` field in the Pod template of your Deployment or other controller. The kubelet runs the probe, and a Pod that fails it is removed from its Service's endpoints. The Service itself does not run health checks.
 
 **Example (HTTP Readiness Probe):**
 
@@ -1302,7 +1301,7 @@ spec:
     spec:
       containers:
       - name: my-container
-        # ... other container configurations ...
+        image: my-image:1.0
         readinessProbe:
           httpGet:
             path: /healthz
@@ -1317,7 +1316,7 @@ spec:
 - **`initialDelaySeconds`:**  Waits for 15 seconds after the container starts before performing the first probe.
 - **`periodSeconds`:**  Performs the probe every 20 seconds.
 
-**Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)
+**Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 
 ### 65.  What is the purpose of a Kubernetes init container, and how is it different from a regular container?
 
@@ -1325,13 +1324,9 @@ spec:
 
 | Feature | Init Container | Regular Container |
 |---|---|---|
-| Execution Order | Runs to completion **before** any regular containers in the Pod start. |  Runs after all init containers have successfully completed. |
-| Purpose | Performs initialization tasks required by the application, such as:
-
-- Setting up dependencies.
-- Running database migrations.
-- Downloading configuration files. |  Runs the main application logic. |
-| Guaranteed Completion | Must complete successfully for the Pod to start. | Failure might not prevent other regular containers from running (unless restart policies dictate otherwise). |
+| Execution Order | Runs to completion **before** any regular containers in the Pod start. | Starts only after all init containers have completed successfully. |
+| Purpose | Setup work such as waiting for dependencies, running database migrations, or downloading configuration files. | Runs the main application logic. |
+| Failure Handling | Retried by the kubelet under the Pod's `restartPolicy`. The app containers do not start until it succeeds. | Restarted under the Pod's `restartPolicy`. A failure does not stop sibling regular containers. |
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/pods/init-containers/](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
 
@@ -1354,7 +1349,7 @@ spec:
      name: my-config
    data:
      database.url: "https://mydatabase.example.com"
-     api.key: "your-api-key-here"
+     log.level: "info"
    ```
 
 2. **Mount the ConfigMap as a Volume:** In your Deployment's Pod template, mount the ConfigMap as a volume.
@@ -1376,7 +1371,7 @@ spec:
        spec:
          containers:
          - name: my-container
-           # ... other container configurations ...
+           image: my-image:1.0
            volumeMounts:
            - name: config-volume
              mountPath: /etc/config
@@ -1397,7 +1392,7 @@ spec:
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/)
 
-**Explanation:** ConfigMaps provide a way to separate configuration from container images, making your applications more portable and configurable.
+**Explanation:** ConfigMaps provide a way to separate configuration from container images, making your applications more portable and configurable. Store credentials in a Secret instead.
 
 ### 67. Explain the different types of Kubernetes probes and their purposes.
 
@@ -1415,11 +1410,12 @@ spec:
 
 - **HTTP:** Sends an HTTP GET request to a specified endpoint.
 - **TCP:** Attempts to open a TCP connection to a specified port.
+- **gRPC:** Calls the gRPC health checking service on a port (stable since Kubernetes 1.27).
 - **Command:** Executes a command inside the container.
 
-**Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)
+**Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 
-**Explanation:**  Probes are essential for monitoring the health of your applications and ensuring their availability and responsiveness.
+**Explanation:**  A failing liveness probe restarts the container, while a failing readiness probe only removes the Pod from Service endpoints. Use a startup probe to hold off liveness checks during slow starts.
 
 ### 68. What is a Kubernetes Namespace, and how does it relate to resource isolation?
 
@@ -1442,7 +1438,7 @@ You could have separate Namespaces for "development," "testing," and "production
 
 **Documentation:** [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
 
-**Explanation:**  Namespaces are a fundamental concept in Kubernetes for organizing and managing resources, especially in multi-tenant environments.
+**Explanation:**  Namespaces do not isolate network traffic by default; use NetworkPolicy for that. Nodes, PersistentVolumes, and other cluster-scoped objects do not belong to any Namespace.
 
 ### 69.  Explain the difference between `kubectl exec` and `kubectl logs` commands.
 
@@ -1504,6 +1500,7 @@ kubectl logs my-pod -c my-container
 **Explanation:**
 
 - The `imagePullSecrets` field tells Kubernetes to use the specified Secret to authenticate with your private registry when pulling the image.
+- The Secret must be in the same namespace as the Pod. Otherwise the Pod events show `FailedToRetrieveImagePullSecret`.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
@@ -1514,18 +1511,14 @@ kubectl logs my-pod -c my-container
 | Feature | Service | Ingress |
 |---|---|---|
 | Layer | L4 (TCP/UDP) | L7 (HTTP/HTTPS) |
-| Purpose | Exposes Pods within the cluster on a static IP and port. | Routes external HTTP/HTTPS traffic to different services based on rules. |
-| Features | - Load balancing
-
-- Service discovery |  - Virtual hosting (multiple domains)
-  - Path-based routing
-  - TLS/SSL termination |
-| Controller Required | Not required (ClusterIP Services work without a controller) |  Requires an Ingress Controller (e.g., Nginx Ingress, Traefik) |
+| Purpose | Exposes Pods on a stable virtual IP and port. | Routes external HTTP/HTTPS traffic to different Services based on rules. |
+| Features | Load balancing and service discovery | Virtual hosting (multiple domains), path-based routing, TLS termination |
+| Controller Required | Not required for ClusterIP. Type LoadBalancer needs a cloud or load balancer provider. | Requires an Ingress controller (e.g., Traefik, HAProxy Ingress). It is not built into the cluster. |
 
 **Explanation:**
 
 - **Services:** Provide basic internal and external access to Pods.
-- **Ingress:** Extends Services to offer more sophisticated traffic management for HTTP/HTTPS traffic from outside the cluster.
+- **Ingress:** Extends Services to offer more sophisticated traffic management for HTTP/HTTPS traffic from outside the cluster. The Ingress API is frozen, and Gateway API is the recommended successor. ingress-nginx was retired in March 2026, so choose another controller.
 
 **Documentation:**
 
@@ -1540,7 +1533,7 @@ kubectl logs my-pod -c my-container
 
 - **RollingUpdate (default):**
   - Gradually replaces Pods with updated versions.
-  - Provides fine-grained control over the update process with `maxSurge` (maximum number of Pods created above the desired state) and `maxUnavailable` (maximum number of Pods unavailable during the update).
+  - Provides fine-grained control over the update process with `maxSurge` (maximum number of Pods created above the desired state) and `maxUnavailable` (maximum number of Pods unavailable during the update). Both default to 25%.
 
 - **Recreate:**
   - Deletes all old Pods before creating new ones.
@@ -1554,7 +1547,7 @@ kubectl logs my-pod -c my-container
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#deployment-strategies](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#deployment-strategies)
 
-**Explanation:** Choosing the right rollout strategy depends on your application's tolerance for downtime and the complexity of your updates.
+**Explanation:** Recreate is the only built-in strategy with downtime. Choose it only when old and new versions cannot run side by side.
 
 ### 73. How do you troubleshoot container image pull limits in a Kubernetes cluster?
 
@@ -1562,16 +1555,16 @@ kubectl logs my-pod -c my-container
 
 **Troubleshooting Image Pull Limits:**
 
-1. **Check LimitRange:** See if a LimitRange in the namespace restricts image pull sizes. Use `kubectl describe limitrange -n <namespace>`.
-2. **ResourceQuota:** Check for ResourceQuota limits on image pulls. Use `kubectl describe resourcequota -n <namespace>`.
-3. **ImagePullSecrets:** Verify that the correct Secret with registry credentials is attached to the Pod.
-4. **Network Connectivity:** Ensure that nodes can reach the image registry.
-5. **Registry Limits:** Check if the image registry itself has rate limits or size restrictions.
-6. **Increase Resource Limits:**  If needed, adjust LimitRange or ResourceQuota settings to accommodate larger images.
+1. **Read the events:** Run `kubectl describe pod <pod-name>`. `ErrImagePull` and `ImagePullBackOff` mean the kubelet is failing and retrying the pull.
+2. **Registry Rate Limits:** A `toomanyrequests` event means the registry throttled the node, as Docker Hub does for anonymous pulls. Authenticate with `imagePullSecrets` or pull through a mirror.
+3. **ImagePullSecrets:** Verify that the correct Secret is attached to the Pod and lives in the same namespace. A `FailedToRetrieveImagePullSecret` event means it is missing or misnamed.
+4. **Network Connectivity:** Ensure that nodes can reach and resolve the registry host.
+5. **Image Name and Tag:** A typo in the image name or tag causes the same retry loop.
+6. **LimitRange and ResourceQuota:** These do not affect image pulls. They govern CPU, memory, and object counts, so changing them will not fix a pull error.
 
-**Documentation:** [https://kubernetes.io/docs/concepts/policy/](https://kubernetes.io/docs/concepts/policy/)
+**Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
-**Explanation:**  Image pull limits can arise from various factors. Check both Kubernetes configuration and external factors to resolve issues.
+**Explanation:**  Most pull failures come from credentials, registry throttling, or network access, not from Kubernetes quotas.
 
 ### 74.  Describe the purpose and use cases for Kubernetes annotations.
 
@@ -1583,7 +1576,7 @@ kubectl logs my-pod -c my-container
 - **Informational or Operational:**  Used for:
   - **Adding Notes or Descriptions:** Provide context or information about the object.
   - **Tooling and Automation:** Configure tools, build pipelines, or automation systems.
-  - **Version Control Systems:**  Track changes or versions of objects.
+  - **Tool-managed state:**  Records written by tools and controllers, such as `kubectl.kubernetes.io/last-applied-configuration`.
 
 **Examples:**
 
@@ -1596,7 +1589,7 @@ kubectl logs my-pod -c my-container
 
 ### 75.  What is a Kubernetes Custom Resource Definition (CRD), and provide an example use case.
 
-**Answer:** (Repeated from Question 54, providing a different use case)
+**Answer:**
 
 **Custom Resource Definitions (CRDs):**
 
