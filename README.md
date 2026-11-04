@@ -708,7 +708,7 @@ A Deployment strategy in Kubernetes defines how updates to your application are 
 - **Labels and Annotations:** Use labels for selectors and annotations for metadata.
 - **Templates and Functions:**  Leverage templates (Helm) and functions to avoid repetition and manage complex configurations.
 - **Versioning:** Use a source code management system (Git) to track changes to YAML files.
-- **Validation:**  Validate your YAML files using tools like `kubectl --dry-run=client -o yaml` or online validators.
+- **Validation:**  Validate your YAML files using tools like `kubectl apply --dry-run=client -f <file> -o yaml` or online validators.
 
 **Documentation:**  While not a single documentation page, Kubernetes documentation emphasizes these practices throughout.
 
@@ -797,17 +797,23 @@ spec:
 
 1. **Planning and Backup:**
    - Review the release notes for the new version.
-   - Back up important cluster data and configurations.
+   - Back up important cluster data and configurations, including etcd.
+   - Upgrade only one minor version at a time (for example, 1.36 to 1.37, not 1.35 to 1.37).
 
-2. **Node Upgrades:**
-   - Drain (cordon and evict Pods) one node at a time.
-   - Upgrade the node's operating system and Kubernetes components.
-   - Uncordon the node to make it available.
-   - Repeat for each node in the cluster.
-
-3. **Control Plane Upgrade:**
+2. **Control Plane Upgrade (kubeadm):**
    - Follow provider-specific instructions if using a managed cluster.
-   - Upgrade control plane components (kube-apiserver, kube-scheduler, kube-controller-manager).
+   - Upgrade the `kubeadm` package to the target version from the `pkgs.k8s.io` repository for that minor version.
+   - Run `kubeadm upgrade plan` to check the available target versions.
+   - On the first control plane node, run `kubeadm upgrade apply vX.Y.Z`.
+   - On each remaining control plane node, run `kubeadm upgrade node`.
+
+3. **Node Upgrades:**
+   - Drain (cordon and evict Pods) one node at a time: `kubectl drain <node-name> --ignore-daemonsets`.
+   - On worker nodes, upgrade `kubeadm` and run `kubeadm upgrade node`.
+   - Upgrade `kubelet` and `kubectl` with your package manager, using the `pkgs.k8s.io` repository for the target minor version.
+   - Restart the kubelet: `sudo systemctl daemon-reload && sudo systemctl restart kubelet`.
+   - Uncordon the node to make it available: `kubectl uncordon <node-name>`.
+   - Repeat for each remaining node in the cluster.
 
 4. **Verification:**
    - Ensure all nodes and the control plane are running the new version.
@@ -973,7 +979,7 @@ spec:
 |---|---|---|
 | Purpose | Provides the core system for the physical or virtual machine running the Kubernetes node. | Provides an isolated environment for running containers within a node. |
 | Scope | Entire node | Individual containers |
-| Examples | Linux (Ubuntu, CentOS), Windows Server | Docker, containerd, CRI-O |
+| Examples | Linux (Ubuntu, CentOS), Windows Server | containerd, CRI-O (Docker Engine via cri-dockerd) |
 
 **Explanation:**
 
@@ -1883,7 +1889,13 @@ kind: Deployment
 # ... other deployment configurations ...
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
   template:
+    metadata:
+      labels:
+        app: my-app
     spec:
       containers:
       - name: my-container
@@ -2672,7 +2684,7 @@ spec:
 **Functionality:**
 
 - **Abstraction Layer:**  CRI defines a standard set of APIs for container lifecycle management (creating, starting, stopping, deleting containers), image management, and resource isolation.
-- **Runtime Plugins:**  Container runtimes (like Docker, containerd, CRI-O) implement the CRI APIs.
+- **Runtime Plugins:**  Container runtimes (like containerd or CRI-O) implement the CRI APIs. Docker Engine is no longer supported directly (dockershim was removed in Kubernetes 1.24); it works only through the cri-dockerd adapter.
 - **kubelet Integration:**  The kubelet interacts with container runtimes through the CRI, issuing commands and receiving status updates.
 
 **Benefits:**
@@ -2839,7 +2851,7 @@ kubectl config use-context production
 
 1. **Check Service Type and Endpoints:**
    - Verify the Service type (`ClusterIP`, `NodePort`, `LoadBalancer`).
-   - Use `kubectl get endpoints <service-name>` to ensure that the Service has endpoints (backend Pods).
+   - Use `kubectl get endpointslices -l kubernetes.io/service-name=<service-name>` to ensure that the Service has endpoints (backend Pods).
 
 2. **Verify Pod Labels and Selectors:**
    - Make sure the Pod labels match the Service's selector. Use `kubectl get pods -l <selector>` and `kubectl describe service <service-name>`.
