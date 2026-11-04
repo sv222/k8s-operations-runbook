@@ -172,26 +172,26 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 
 **Answer:** A Kubernetes cluster consists of:
 
-- **Master Node(s):** Manage the cluster, schedule containers, and monitor the overall health.
-- **Worker Node(s):** Run the containers within pods.
+- **Control plane node(s):** Run the control plane components (kube-apiserver, etcd, kube-scheduler, kube-controller-manager). They manage the cluster, schedule Pods, and monitor overall health.
+- **Worker Node(s):** Run the containers within Pods. Each runs the kubelet and a container runtime.
 - **Pods:** The smallest deployable unit in Kubernetes, containing one or more containers.
-- **Services:** Provide a stable endpoint for accessing pods, even if they are rescheduled.
+- **Services:** Provide a stable endpoint for accessing Pods, even if they are rescheduled.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/overview/components/](https://kubernetes.io/docs/concepts/overview/components/)
 
-**Explanation:** The master node is the brain of the operation, deciding where to run your containers (pods). Worker nodes are the workhorses, actually running your application's containers. Pods are like containers but grouped to ensure they run on the same node and can share resources. Services act as load balancers, directing traffic to the correct pods.
+**Explanation:** The control plane is the brain of the operation, deciding where to run your containers (Pods). Worker nodes are the workhorses, actually running your application's containers. Pods are like containers but grouped to ensure they run on the same node and can share resources. Services act as load balancers, directing traffic to the correct Pods.
 
 ### 3. Describe the role of kube-scheduler in a Kubernetes cluster.
 
-**Answer:** The kube-scheduler is a key component of the Kubernetes master node. It's responsible for assigning pods to specific worker nodes based on resource availability, constraints, and other factors.
+**Answer:** The kube-scheduler is a key component of the Kubernetes control plane. It's responsible for assigning Pods to specific worker nodes based on resource requests, constraints, and other factors.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/scheduling-eviction/kube-scheduler/](https://kubernetes.io/docs/concepts/scheduling-eviction/kube-scheduler/)
 
-**Explanation:** Think of the kube-scheduler as a matchmaker. It continuously monitors resource requests from new pods and compares them with the available resources on each worker node. It then uses a set of rules and policies to determine the best fit, ensuring optimal resource utilization and application performance.
+**Explanation:** Think of the kube-scheduler as a matchmaker. It watches for newly created Pods that have no node assigned, compares their requests and constraints with the capacity of each node, and picks the best fit using its scheduling rules and policies.
 
 ### 4. What is a Kubernetes Namespace and why is it used?
 
-**Answer:** A Namespace is a way to divide cluster resources between multiple users or teams. It provides logical isolation, allowing you to have resources with the same name in different namespaces.
+**Answer:** A Namespace is a way to divide cluster resources between multiple users or teams. It provides logical isolation, allowing you to have resources with the same name in different namespaces. Most resources are namespaced; some, such as Nodes and PersistentVolumes, are cluster-scoped.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
 
@@ -201,7 +201,7 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 
 **Answer:**
 
-- **Pod:** A Pod represents a single instance of a running process in your cluster. It's the smallest deployable unit.
+- **Pod:** A Pod is one or more containers scheduled together on a node that share its network and storage. It's the smallest deployable unit.
 - **Deployment:** A Deployment manages a set of replica Pods, ensuring the desired number of replicas are always running.
 
 **Documentation:**
@@ -209,7 +209,7 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 - Pods: [https://kubernetes.io/docs/concepts/workloads/pods/](https://kubernetes.io/docs/concepts/workloads/pods/)
 - Deployments: [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 
-**Explanation:**  A Pod is like a single container instance. A Deployment is like a blueprint that tells Kubernetes how many replicas of a Pod to run, how to update them, and how to handle rollbacks.
+**Explanation:**  A Pod runs your containers. A Deployment is like a blueprint that tells Kubernetes how many replicas of a Pod to run, how to update them, and how to handle rollbacks. In practice you rarely create bare Pods; a Deployment creates a ReplicaSet, which creates them.
 
 ### 6. What is a Kubernetes Service and how does it provide access to Pods?
 
@@ -224,9 +224,9 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 **Answer:** Kubernetes offers several types of Services:
 
 - **ClusterIP:** Exposes the Service on an internal IP in the cluster.
-- **NodePort:** Exposes the Service on each Node’s IP at a static port.
+- **NodePort:** Exposes the Service on each Node’s IP at a static port (30000-32767 by default).
 - **LoadBalancer:**  Exposes the Service externally using a cloud provider's load balancer.
-- **ExternalName:** Maps the Service to a DNS record.
+- **ExternalName:** Maps the Service to an external DNS name through a CNAME record.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
 
@@ -244,50 +244,49 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 - Services: [https://kubernetes.io/docs/concepts/services-networking/service/](https://kubernetes.io/docs/concepts/services-networking/service/)
 - Ingress: [https://kubernetes.io/docs/concepts/services-networking/ingress/](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 
-**Explanation:** Services provide basic exposure, while Ingress offers more advanced routing and TLS termination capabilities for HTTP/HTTPS traffic.
+**Explanation:** Services provide basic exposure, while Ingress offers more advanced routing and TLS termination capabilities for HTTP/HTTPS traffic. The ingress-nginx controller is retired and no longer receives releases or security fixes, and the Ingress API is frozen. Gateway API is the recommended successor for new setups.
 
 ### 9. What is a Kubernetes Volume and why is it important?
 
-**Answer:** A Volume provides persistent storage for data used by containers in a Pod. It allows data to persist even if a Pod is deleted or rescheduled.
+**Answer:** A Volume is a directory, reachable by the containers in a Pod, that holds data outside the container's filesystem. A Volume's lifetime is tied to its Pod: an `emptyDir` survives container restarts but is removed when the Pod is deleted. Data that must outlive the Pod is stored in a PersistentVolume, claimed through a PersistentVolumeClaim.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/storage/volumes/](https://kubernetes.io/docs/concepts/storage/volumes/)
 
-**Explanation:**  By default, containers have ephemeral storage, meaning data is lost if the container is restarted. Volumes solve this by providing persistent storage that can be attached to Pods, ensuring data consistency and availability.
+**Explanation:**  By default, containers have ephemeral storage, meaning data is lost if the container is restarted. Volumes solve this for data that must survive container restarts or be shared between containers in a Pod, and PersistentVolumes cover data that must survive the Pod itself.
 
 ### 10. Explain the concept of a Kubernetes Secret and its use cases.
 
-**Answer:** A Secret is an object that stores sensitive information, such as passwords, tokens, or keys, in a base64-encoded format within Kubernetes.
+**Answer:** A Secret is an object that stores sensitive information, such as passwords, tokens, or keys. Its values are stored base64-encoded, which is an encoding rather than encryption; encryption at rest must be configured separately on the API server.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/secret/](https://kubernetes.io/docs/concepts/configuration/secret/)
 
-**Explanation:**  Secrets help you securely manage confidential data without hardcoding it into your application configurations. You can mount Secrets into Pods as volumes or environment variables, making them accessible to your applications without exposing the raw values.
+**Explanation:**  Secrets help you manage confidential data without hardcoding it into your application configurations. You can mount Secrets into Pods as volumes or expose them as environment variables.
 
 ### 11. How do you scale a Kubernetes Deployment?
 
 **Answer:** You can scale a Deployment:
 
-- **Manually:** Using the `kubectl scale` command.
-- **Horizontally:** Increasing or decreasing the number of replicas.
-- **Automatically:** Using the Horizontal Pod Autoscaler (HPA) based on metrics like CPU utilization.
+- **Manually:** Set the replica count with `kubectl scale deployment/<name> --replicas=<n>`.
+- **Automatically:** Use the Horizontal Pod Autoscaler (HPA), which adjusts the replica count based on metrics such as CPU utilization.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#scaling-a-deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#scaling-a-deployment)
 
-**Explanation:** Scaling allows your application to handle varying workloads. Manual scaling is straightforward. Horizontal scaling adjusts the number of Pods. The HPA automatically scales based on predefined metrics.
+**Explanation:** Scaling changes the number of Pods that serve your application. The HPA does this automatically, based on the metrics you define.
 
 ### 12. What is a Kubernetes ConfigMap and how is it used?
 
-**Answer:** A ConfigMap is an object that stores configuration data in key-value pairs. It separates configuration from container images, making applications more portable and configurable.
+**Answer:** A ConfigMap is an object that stores configuration data in key-value pairs. It separates configuration from container images, making applications more portable.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/configmap/](https://kubernetes.io/docs/concepts/configuration/configmap/)
 
-**Explanation:** Instead of hardcoding configuration values within your application, you can store them in a ConfigMap. This allows you to change the configuration without rebuilding container images, promoting flexibility and reusability.
+**Explanation:** Instead of hardcoding configuration values within your application, you can store them in a ConfigMap. You can change the configuration without rebuilding container images. ConfigMap data is not encrypted and is not meant for sensitive values; use a Secret for those.
 
 ### 13. Describe the purpose of Kubernetes Resource Limits and Requests.
 
-**Answer:**  Resource Limits and Requests are used to:
+**Answer:**  Resource Requests and Limits are used to:
 
-- **Requests:** Guarantee a minimum amount of resources (CPU, memory) to a container.
-- **Limits:** Set the maximum amount of resources a container can consume.
+- **Requests:** The amount of CPU and memory the scheduler reserves for a container when it places the Pod on a node.
+- **Limits:** The maximum a container can use. CPU above the limit is throttled; memory above the limit gets the container OOMKilled.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
 
@@ -295,22 +294,22 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 
 ### 14.  What is a Kubernetes Liveness Probe and how does it work?
 
-**Answer:** A Liveness Probe is a periodic check that Kubernetes performs on a container to determine if it's still running as expected. If a Liveness Probe fails, Kubernetes restarts the container.
+**Answer:** A Liveness Probe is a periodic check that the kubelet performs on a container to determine if it's still running as expected. If a Liveness Probe fails, Kubernetes restarts the container.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)
 
-**Explanation:** Liveness Probes are essential for self-healing. They detect unresponsive or unhealthy containers and automatically restart them, ensuring your application remains available.
+**Explanation:** Liveness Probes are essential for self-healing. They detect unresponsive or deadlocked containers and restart them. Avoid checks that depend on external services, such as a database: if that dependency fails, every container would restart at once.
 
 ### 15. What is a Kubernetes Readiness Probe and how is it different from a Liveness Probe?
 
 **Answer:**
 
 - **Liveness Probe:** Checks if a container is running; restarts it if it fails.
-- **Readiness Probe:** Checks if a container is ready to serve traffic; removes it from the service endpoint if it fails.
+- **Readiness Probe:** Checks if a container is ready to serve traffic; removes it from the Service endpoints if it fails.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)
 
-**Explanation:** While Liveness Probes focus on container health, Readiness Probes ensure that a container is fully initialized and ready to accept incoming requests before it's added to the service load balancer.
+**Explanation:** While Liveness Probes focus on container health, Readiness Probes control when a container receives traffic. The Pod is added to the Service's endpoints only after its readiness checks pass.
 
 ### 16. What are Init Containers in Kubernetes and when are they used?
 
@@ -318,7 +317,7 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/pods/init-containers/](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
 
-**Explanation:** Imagine you need to download a configuration file or run a database migration script before your main application starts. Init Containers provide a way to perform these tasks in a predictable order.
+**Explanation:** Imagine you need to download a configuration file or run a database migration script before your main application starts. Init Containers provide a way to perform these tasks in a predictable order. They run one at a time, in the order listed, and each must exit successfully before the next one starts.
 
 ### 17. Explain the concept of a Kubernetes StatefulSet.
 
@@ -326,7 +325,7 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/)
 
-**Explanation:** Unlike Deployments, where Pods are interchangeable, StatefulSets maintain a sticky identity for each Pod. This is crucial for applications that require persistent storage, stable network identities, or ordered deployment.
+**Explanation:** Unlike Deployments, where Pods are interchangeable, StatefulSets maintain a sticky identity for each Pod. This is crucial for applications that require persistent storage, stable network identities, or ordered deployment. Stable network identities also need a headless Service (`clusterIP: None`) named in the StatefulSet's `serviceName` field.
 
 ### 18. What is the purpose of a Kubernetes Job?
 
@@ -338,7 +337,13 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 
 ### 19. How do you perform a rolling update on a Kubernetes Deployment?
 
-**Answer:** Kubernetes Deployments handle rolling updates automatically. When you update the Deployment (e.g., with a new container image), it gradually replaces the old Pods with new ones while ensuring a certain number of Pods are always available.
+**Answer:** Deployments perform rolling updates by default when you change the Pod template (for example, a new container image). The Deployment gradually replaces old Pods with new ones while keeping a set number available, controlled by `maxSurge` and `maxUnavailable`. Typical commands:
+
+```bash
+kubectl set image deployment/<name> <container>=<image>:<tag>
+kubectl rollout status deployment/<name>
+kubectl rollout undo deployment/<name>   # roll back if the update fails
+```
 
 **Documentation:** [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment)
 
@@ -361,6 +366,7 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 - **kubectl describe node <node-name>:**  Get detailed information about a specific node.
 - **kubectl logs <pod-name>:** View logs from a Pod to diagnose issues.
 - **kubectl cluster-info:** Get basic information about the cluster.
+- **kubectl get --raw='/readyz?verbose':** Check the readiness of the control plane components.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/#checking-cluster-health](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/#checking-cluster-health)
 
@@ -388,30 +394,30 @@ Every YAML example is validated against the current Kubernetes schema in CI. See
 **Answer:**  Troubleshooting networking in Kubernetes involves:
 
 - **Checking Network Policies:**  See if network policies are restricting traffic.
-- **Inspecting Services:** Verify that services are correctly configured and selecting the correct pods.
-- **Examining Endpoints:**  Ensure that EndpointSlices (the Endpoints API is deprecated since 1.33) have the correct IP addresses and ports of the backing pods.
-- **Using Network Tools:** Employ tools like `ping`, `curl`, `traceroute`, and `nslookup` within pods to diagnose connectivity.
+- **Inspecting Services:** Verify that services are correctly configured and selecting the correct Pods.
+- **Examining Endpoints:**  Check EndpointSlices for the correct IP addresses and ports of the backing Pods. The older Endpoints API has been deprecated since v1.33.
+- **Checking DNS:** Confirm that the Service name resolves (for example, with `nslookup`) and that the CoreDNS Pods are running.
+- **Using debug tools:** Run `curl`, `nslookup`, or `traceroute` from a debug container, such as `kubectl debug -it <pod-name> --image=<image-with-tools>`, because application images often lack them.
 
 **Documentation:** [https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/](https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/)
 
-**Explanation:** Network troubleshooting in Kubernetes requires a methodical approach, from verifying network policies to inspecting service configurations and testing connectivity using common network tools.
+**Explanation:** Work from the Service down: confirm that it selects healthy Pods and has endpoints, then test connectivity from inside the cluster.
 
 ### 24. What is a Kubernetes Namespace and how does it relate to resource isolation?
 
-**Answer:** A Namespace provides a logical boundary and a mechanism for resource isolation within a Kubernetes cluster. It allows you to divide cluster resources, such as Pods, Services, and Deployments, into separate, isolated environments.
+**Answer:** A Namespace provides a logical boundary for names and resource grouping within a Kubernetes cluster. It lets you organize Pods, Services, Deployments, and other namespaced resources into separate areas. On its own, a Namespace does not isolate network traffic or limit resource consumption; use NetworkPolicy, ResourceQuota, and LimitRange for that.
 
 **Documentation:** [https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
 
-**Explanation:** Imagine you have multiple teams sharing the same cluster. Namespaces allow them to have their own isolated areas where they can deploy applications with the same names without conflicts. It enhances security and organization.
+**Explanation:** Imagine you have multiple teams sharing the same cluster. Namespaces allow them to have their own areas where they can deploy applications with the same names without conflicts. Security comes from RBAC and NetworkPolicy scoped to each Namespace, not from the Namespace itself.
 
 ### 25. Explain the concept of a Kubernetes Role-Based Access Control (RBAC).
 
-**Answer:**  RBAC is a method of regulating access to computer or network resources based on the roles of individual users within your organization. In Kubernetes, RBAC controls who can perform which actions (verbs) on which resources within a specific namespace (or cluster-wide).
+**Answer:**  Role-Based Access Control (RBAC) is the Kubernetes authorization mode that controls which users and ServiceAccounts can perform which actions. A permission is a verb (such as `get`, `list`, or `create`) on a resource type. Roles are namespaced, ClusterRoles are cluster-scoped, and RoleBindings or ClusterRoleBindings attach them to subjects.
 
 **Documentation:** [https://kubernetes.io/docs/reference/access-authn-authz/rbac/](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
 
 **Explanation:** RBAC is essential for securing your Kubernetes cluster. It allows you to define granular permissions, ensuring that users and applications only have access to the resources they need to perform their tasks.
-
 ### 26. What are the components of RBAC in Kubernetes?
 
 **Answer:** RBAC in Kubernetes consists of:
