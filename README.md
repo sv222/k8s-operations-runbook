@@ -2608,6 +2608,8 @@ spec:
 
 You can assign a specific external IP address to a Kubernetes Service of type `LoadBalancer` by providing the `loadBalancerIP` field in the Service definition.
 
+> **Note:** `spec.loadBalancerIP` is deprecated since Kubernetes 1.24 and some providers ignore it. Prefer the provider-specific annotation for the load balancer IP, or the Gateway API.
+
 **Example:**
 
 ```yaml
