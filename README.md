@@ -2412,7 +2412,7 @@ spec:
    kind: StorageClass
    metadata:
      name: fast-storage
-   provisioner: ebs.csi.aws.com # AWS EBS CSI driver (the in-tree provisioner was removed in 1.26)
+   provisioner: ebs.csi.aws.com # AWS EBS CSI driver (the in-tree provisioner was removed in 1.27)
    parameters:
      type: gp3
      fsType: ext4
